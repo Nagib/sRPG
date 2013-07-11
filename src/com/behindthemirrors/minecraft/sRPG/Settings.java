@@ -167,19 +167,19 @@ public class Settings {
 					// update skill aliases
 					JOB_ALIASES.put(locale,new HashMap<String,String>());
 					if (jobsSection != null) {
-						for (String name : jobsSection.getKeys(true)) {
+						for (String name : jobsSection.getKeys(false)) {
 							JOB_ALIASES.get(locale).put(localization.get(locale).getString("jobs."+name).toLowerCase(),name);
 						}
 					}
 					PASSIVE_ALIASES.put(locale,new HashMap<String,String>());
 					if (passivesSection != null) {
-						for (String name : passivesSection.getKeys(true)) {
+						for (String name : passivesSection.getKeys(false)) {
 							PASSIVE_ALIASES.get(locale).put(localization.get(locale).getString("passives."+name).toLowerCase(),name);
 						}
 					}
 					ACTIVE_ALIASES.put(locale,new HashMap<String,String>());
 					if (activesSection != null) {
-						for (String name : activesSection.getKeys(true)) {
+						for (String name : activesSection.getKeys(false)) {
 							ACTIVE_ALIASES.get(locale).put(localization.get(locale).getString("actives."+name).toLowerCase(),name);
 						}
 					}
@@ -233,7 +233,6 @@ public class Settings {
 				Configuration difficultyConfig = YamlConfiguration.loadConfiguration(file);
 				// TODO: add try/catch for .yml parsing errors
 				//difficultyConfig.load();
-				
                                 
 				ARMOR_FACTORS = new ArrayList<Double>();
 				for (String type : new String[] {"leather","chain","iron","diamond","gold"}) {
@@ -259,11 +258,11 @@ public class Settings {
                                 ConfigurationSection statsTools = difficultyConfig.getConfigurationSection("stats.tools");
                                 
 				try {
-					for (String toolgroup : statsTools.getKeys(true)) {
+					for (String toolgroup : statsTools.getKeys(false)) {
                                             
-                                                ConfigurationSection toolgroupSection = difficultyConfig.getConfigurationSection(toolgroup);
+                                                ConfigurationSection toolgroupSection = difficultyConfig.getConfigurationSection("stats.tools." + toolgroup);
                                             
-						for (String tool : toolgroupSection.getKeys(true)) {
+						for (String tool : toolgroupSection.getKeys(false)) {
 							tool = toolgroup+"."+tool;
 							if (!node.getBoolean(tool+".override", false)) {
 								int basedamage = node.getInt(tool+".damage", 1);
@@ -299,14 +298,14 @@ public class Settings {
                                 ConfigurationSection section;
                                 
 				if (jobPrefixes != null) {
-					for (String prefix : jobPrefixes.getKeys(true)) {
+					for (String prefix : jobPrefixes.getKeys(false)) {
 						StructureJob.ranks.put(Integer.parseInt(prefix.substring(prefix.indexOf(" ")+1)), jobsettings.getString("job-prefixes."+prefix));
 					}
 				}
 				// load skill definitions
 				passives = new HashMap<String, StructurePassive>();
 				PASSIVE_ALIASES.put(null,new HashMap<String, String>());
-				for (String signature : passiveDefinitions.getKeys(true)) {
+				for (String signature : passiveDefinitions.getKeys(false)) {
                                         section =  passiveDefinitions.getConfigurationSection(signature);
 					passives.put(signature, new StructurePassive(signature, section));
 					PASSIVE_ALIASES.get(null).put(passives.get(signature).name.toLowerCase(), signature);
@@ -316,7 +315,7 @@ public class Settings {
 				// load ability definitions
 				actives = new HashMap<String, StructureActive>();
 				ACTIVE_ALIASES.put(null,new HashMap<String, String>());
-				for (String signature : activeDefinitions.getKeys(true)) {
+				for (String signature : activeDefinitions.getKeys(false)) {
                                         section = activeDefinitions.getConfigurationSection(signature);
 					actives.put(signature, new StructureActive(signature, section));
 					ACTIVE_ALIASES.get(null).put(actives.get(signature).name.toLowerCase(), signature);
@@ -326,7 +325,7 @@ public class Settings {
 				// load job definitions
 				jobs = new HashMap<String, StructureJob>();
 				JOB_ALIASES.put(null,new HashMap<String, String>());
-				for (String signature : jobDefinitions.getKeys(true)) {
+				for (String signature : jobDefinitions.getKeys(false)) {
                                         ConfigurationSection tree = jobsettings.getConfigurationSection("tree");
                                         
 					if (tree.contains(signature) && jobDefinitions.getBoolean(signature+".enabled", true)) {
@@ -341,7 +340,7 @@ public class Settings {
                                                 
                                                 
 						if (treePrerequisites != null) {
-							for (String prereq : treePrerequisites.getKeys(true)) {
+							for (String prereq : treePrerequisites.getKeys(false)) {
 								jobs.get(signature).prerequisites.put(jobs.get(prereq), jobsettings.getInt("tree."+signature+".prerequisites."+prereq, 1));
 							}
 						} 
@@ -372,7 +371,7 @@ public class Settings {
 				
 				// load mobs
 				mobs = new HashMap<String, StructureJob>();
-				for (String creature : mobDefinitions.getKeys(true)) {
+				for (String creature : mobDefinitions.getKeys(false)) {
                                         section = mobDefinitions.getConfigurationSection(creature);
 					mobs.put(creature, new StructureJob(creature, section));
 				}
@@ -399,7 +398,7 @@ public class Settings {
                         
                         ConfigurationSection settingsBlocksGroups = Settings.advanced.getConfigurationSection("settings.blocks.groups");
                         
-                        for (String group : settingsBlocksGroups.getKeys(true)) {
+                        for (String group : settingsBlocksGroups.getKeys(false)) {
                                 
 				String name = group; 
 				node = Settings.advanced.getConfigurationSection("settings.blocks.groups." + name);

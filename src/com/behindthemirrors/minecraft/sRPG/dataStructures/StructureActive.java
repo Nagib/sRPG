@@ -43,7 +43,7 @@ public class StructureActive implements Comparable<StructureActive> {
                 ConfigurationSection effectsSection = node.getConfigurationSection("effects");
                 
 		if (effectsSection != null) {
-			for (String effect : effectsSection.getKeys(true)) {
+			for (String effect : effectsSection.getKeys(false)) {
                                 ConfigurationSection effectsEffectSection = node.getConfigurationSection("effects."+effect);
 				effects.put(effect, effectsEffectSection);
 			}

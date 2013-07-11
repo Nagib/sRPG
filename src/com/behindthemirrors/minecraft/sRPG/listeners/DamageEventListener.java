@@ -122,7 +122,7 @@ public class DamageEventListener implements Listener {
                                 
                                 ConfigurationSection combatRestrictionsGroupsSection = Settings.advanced.getConfigurationSection("combat.restrictions.groups");
                                 
-				for (String group : combatRestrictionsGroupsSection.getKeys(true)) {
+				for (String group : combatRestrictionsGroupsSection.getKeys(false)) {
 					if (((Player)source).hasPermission(prefix+group)) {
 						forbidden = true;
 						String targetname = MiscBukkit.getEntityName(target);

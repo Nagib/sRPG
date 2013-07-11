@@ -268,3 +268,29 @@ wolf-tamed:
     xp: 10
   traits:
   passives:
+
+ocelot:
+  enabled: true
+  name: Ocelot
+  description: 
+  details: 
+  tier: 0
+  defaults:
+    health: 16
+    damage-unarmed: 5
+    xp: 15
+  traits:
+  passives:
+    
+bat:
+  enabled: true
+  name: Bat
+  description: 
+  details: 
+  tier: 0
+  defaults:
+    health: 2
+    damage-unarmed: 1
+    xp: 3
+  traits:
+  passives:

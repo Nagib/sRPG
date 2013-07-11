@@ -48,6 +48,9 @@ public class SpawnEventListener implements Listener {
 		}
 		String creature = MiscBukkit.getEntityName(event.getEntity());
 		LivingEntity entity = (LivingEntity)event.getEntity();
+                
+                sRPG.output("Trying to spawn " + creature);
+                
 		// for testing
 		if (Settings.mobs.containsKey(creature)) {
 			ProfileNPC profile = sRPG.profileManager.get(entity);

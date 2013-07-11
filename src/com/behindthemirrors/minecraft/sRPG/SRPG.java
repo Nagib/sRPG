@@ -33,10 +33,11 @@ public final class sRPG extends JavaPlugin {
 	static final String DEBUG_PREFIX = "[sDEBUG]";
 	
 	public static boolean debug = false;
-	public static ArrayList<String> debugmodes = new ArrayList<String>();
+	public static ArrayList<String> debugmodes;
 	
 	public static Plugin plugin;
 	static PluginManager pm;
+        
 	public static ProfileManager profileManager = new ProfileManager();
 	public static TimedEffectManager timedEffectManager = new TimedEffectManager();
 	public static CascadeQueue cascadeQueueScheduler = new CascadeQueue(); 
@@ -96,6 +97,7 @@ public final class sRPG extends JavaPlugin {
 		}
 	}
         
+        @Override
 	public void onDisable() {
 		pdfFile = this.getDescription();
 		for (World world : plugin.getServer().getWorlds()) {

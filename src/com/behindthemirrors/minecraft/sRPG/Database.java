@@ -77,7 +77,7 @@ public class Database {
         
         ConfigurationSection tree = Settings.jobsettings.getConfigurationSection("tree");
         
-        for (String name : tree.getKeys(true)) {
+        for (String name : tree.getKeys(false)) {
         	sql += ",`" + name + "` "+uint+" NOT NULL DEFAULT 0";
         }
         sql += ") "+engine+";";

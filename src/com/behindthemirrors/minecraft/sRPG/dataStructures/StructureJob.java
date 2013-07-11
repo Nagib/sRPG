@@ -51,7 +51,7 @@ public class StructureJob implements Comparable<StructureJob> {
 		defaults = new HashMap<String, Double>();
                 ConfigurationSection settingsDefaultsSection = Settings.jobsettings.getConfigurationSection("settings.defaults");
                 
-		for (String stat : settingsDefaultsSection.getKeys(true)) {
+		for (String stat : settingsDefaultsSection.getKeys(false)) {
 			if (stat.equals("maximum-level")) {
 				maximumLevel = root.getInt("defaults."+stat,Settings.jobsettings.getInt("settings.defaults."+stat, 1));
 			} else {
@@ -62,9 +62,9 @@ public class StructureJob implements Comparable<StructureJob> {
                 ConfigurationSection settingsSection = Settings.jobsettings.getConfigurationSection("defaults");
                 
 		if (settingsSection != null) {
-			for (String stat : settingsSection.getKeys(true)) {
+			for (String stat : settingsSection.getKeys(false)) {
 				if (!defaults.containsKey(stat)) {
-					defaults.put(stat, root.getDouble("defaults."+stat,1));
+					defaults.put(stat, settingsSection.getDouble(stat,1));
 				}
 			}
 		}
@@ -84,10 +84,15 @@ public class StructureJob implements Comparable<StructureJob> {
                 ConfigurationSection passivesSection = Settings.jobsettings.getConfigurationSection("passives");
                 
 		if (passivesSection != null) {
-			for (String levelString : passivesSection.getKeys(true)) {
+			for (String levelString : passivesSection.getKeys(false)) {
 				Integer level = Integer.parseInt(levelString.substring(levelString.indexOf(" ")+1));
 				passives.put(level, new HashMap<StructurePassive, EffectDescriptor>());
-				for (String passive : root.getStringList("passives."+levelString)) {
+                                
+                                sRPG.output("Level Passive: " + levelString);
+                                
+				for (String passive : passivesSection.getStringList(levelString)) {
+                                        sRPG.output("Passive: " + passive);
+                                    
 					// TODO: make NPE safe
 					EffectDescriptor descriptor = new EffectDescriptor(passive,0,maximumLevel);
 					if (Settings.passives.containsKey(MiscBukkit.stripPotency(passive))) {
@@ -103,10 +108,10 @@ public class StructureJob implements Comparable<StructureJob> {
                 ConfigurationSection activesSection = Settings.jobsettings.getConfigurationSection("actives");
                 
 		if (activesSection != null) {
-			for (String levelString : activesSection.getKeys(true)) {
+			for (String levelString : activesSection.getKeys(false)) {
 				Integer level = Integer.parseInt(levelString.substring(levelString.indexOf(" ")+1));
 				actives.put(level, new HashMap<StructureActive, EffectDescriptor>());
-				for (String active : root.getStringList("actives."+levelString)) {
+				for (String active : activesSection.getStringList(levelString)) {
 					// TODO: make NPE safe
 					EffectDescriptor descriptor = new EffectDescriptor(active,0,maximumLevel);
 					if (Settings.actives.containsKey(MiscBukkit.stripPotency(active))) {

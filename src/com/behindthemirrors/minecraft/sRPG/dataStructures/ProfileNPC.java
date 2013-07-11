@@ -179,9 +179,11 @@ public class ProfileNPC {
 			for (Map.Entry<String, ConfigurationSection> detailsEntry : passive.effects.entrySet()) {
 				String effect = detailsEntry.getKey();
 				ConfigurationSection node = detailsEntry.getValue();
-				if (inheritance > 0 && !node.getBoolean("inherited", false)) {
+				
+                                if (inheritance > 0 && !node.getBoolean("inherited", false)) {
 					continue;
 				}
+                                
 				if (effect.startsWith("boost") && node.getStringList("conditions").isEmpty() && !(node.getDouble("chance", 1.0) < 1.0)) {
 					ArrayList<String> levelbased = (ArrayList<String>) node.getStringList("level-based");
 					String name = node.getString("name");
@@ -214,7 +216,7 @@ public class ProfileNPC {
 						}
 					}
 				} else if (effect.startsWith("trigger-active")) {
-					Watcher.register(this,new TriggerEffect(node,descriptor),stats.indexOf(statTarget));
+					Watcher.register(this,new TriggerEffect(node, descriptor),stats.indexOf(statTarget));
 				}
 			}
 		}

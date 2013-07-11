@@ -23,7 +23,7 @@ public class StructurePassive implements Comparable<StructurePassive> {
                 
                 ConfigurationSection section = node.getConfigurationSection("effects");
                 
-		for (String effect : section.getKeys(true)) {
+		for (String effect : section.getKeys(false)) {
                         ConfigurationSection effectSection = node.getConfigurationSection("effects"+effect);
                         
 			effects.put(effect, effectSection);
