@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.bukkit.Material;
-import org.bukkit.util.config.ConfigurationNode;
+import org.bukkit.configuration.ConfigurationSection;
 
 import com.behindthemirrors.minecraft.sRPG.MiscBukkit;
 
@@ -20,13 +20,13 @@ public class StructureActive implements Comparable<StructureActive> {
 	public Integer range;
 	Double cooldown;
 	String replaces;
-	public HashMap<String,ConfigurationNode> effects;
+	public HashMap<String,ConfigurationSection> effects;
 	boolean combat;
 	
 	public ArrayList<Material> validMaterials;
 	public ArrayList<Material> versusMaterials;
 	
-	public StructureActive(String uniqueName, ConfigurationNode node) {
+	public StructureActive(String uniqueName, ConfigurationSection node) {
 		signature = uniqueName;
 		name = node.getString("name");
 		description = node.getString("description");
@@ -38,14 +38,18 @@ public class StructureActive implements Comparable<StructureActive> {
 		range = node.getInt("range",5);
 		cooldown = node.getDouble("cooldown", 0);
 		replaces = node.getString("replaces");
-		effects = new HashMap<String, ConfigurationNode>();
-		if (node.getKeys("effects") != null) {
-			for (String effect : node.getKeys("effects")) {
-				effects.put(effect, node.getNode("effects."+effect));
+		effects = new HashMap<String, ConfigurationSection>();
+                
+                ConfigurationSection effectsSection = node.getConfigurationSection("effects");
+                
+		if (effectsSection != null) {
+			for (String effect : effectsSection.getKeys(true)) {
+                                ConfigurationSection effectsEffectSection = node.getConfigurationSection("effects."+effect);
+				effects.put(effect, effectsEffectSection);
 			}
 		}
-		validMaterials = MiscBukkit.parseMaterialList(node.getStringList("tools", new ArrayList<String>()));
-		versusMaterials = MiscBukkit.parseMaterialList(node.getStringList("versus", new ArrayList<String>()));
+		validMaterials = MiscBukkit.parseMaterialList(node.getStringList("tools"));
+		versusMaterials = MiscBukkit.parseMaterialList(node.getStringList("versus"));
 		
 		combat = node.getBoolean("combat", false);
 	}

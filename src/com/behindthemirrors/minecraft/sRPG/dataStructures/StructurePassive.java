@@ -2,7 +2,7 @@ package com.behindthemirrors.minecraft.sRPG.dataStructures;
 
 import java.util.HashMap;
 
-import org.bukkit.util.config.ConfigurationNode;
+import org.bukkit.configuration.ConfigurationSection;
 
 public class StructurePassive implements Comparable<StructurePassive> {
 
@@ -11,17 +11,22 @@ public class StructurePassive implements Comparable<StructurePassive> {
 	public String description;
 	public String adjective;
 	String replaces;
-	public HashMap<String,ConfigurationNode> effects;
+	public HashMap<String,ConfigurationSection> effects;
 	
-	public StructurePassive(String uniqueName, ConfigurationNode node) {
+	public StructurePassive(String uniqueName, ConfigurationSection node) {
 		signature = uniqueName;
 		name = node.getString("name");
 		description = node.getString("description");
 		adjective = node.getString("adjective");
 		replaces = node.getString("replaces");
-		effects = new HashMap<String, ConfigurationNode>();
-		for (String effect : node.getKeys("effects")) {
-			effects.put(effect, node.getNode("effects."+effect));
+		effects = new HashMap<String, ConfigurationSection>();
+                
+                ConfigurationSection section = node.getConfigurationSection("effects");
+                
+		for (String effect : section.getKeys(true)) {
+                        ConfigurationSection effectSection = node.getConfigurationSection("effects"+effect);
+                        
+			effects.put(effect, effectSection);
 		}
 	}
 

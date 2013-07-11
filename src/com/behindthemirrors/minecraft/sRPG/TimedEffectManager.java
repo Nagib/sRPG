@@ -17,9 +17,9 @@ public class TimedEffectManager implements Runnable {
 	
 	public void run() {
 		Watcher.tick();
-		SRPG.profileManager.checkEntityRemoval();
+		sRPG.profileManager.checkEntityRemoval();
 		// check all currently active effects
-		//SRPG.output("tick");
+		//sRPG.output("tick");
 		Iterator<ProfileNPC> playerIterator = relevantProfiles.iterator();
 		while (playerIterator.hasNext()) {
 			ProfileNPC profile = playerIterator.next();
@@ -35,7 +35,7 @@ public class TimedEffectManager implements Runnable {
 					descriptor.duration--;
 					ResolverPassive.resolve(profile,passive,descriptor);
 				} else {
-					SRPG.dout("effect "+passive.name+" expired","effects");
+					sRPG.dout("effect "+passive.name+" expired","effects");
 					effectIterator.remove();
 					if (profile instanceof ProfilePlayer){
 						Messager.sendMessage(profile, "lost-buff",passive.signature);

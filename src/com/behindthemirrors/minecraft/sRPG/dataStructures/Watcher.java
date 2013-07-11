@@ -13,7 +13,7 @@ import org.bukkit.entity.Item;
 
 import com.behindthemirrors.minecraft.sRPG.CombatInstance;
 import com.behindthemirrors.minecraft.sRPG.ResolverPassive;
-import com.behindthemirrors.minecraft.sRPG.SRPG;
+import com.behindthemirrors.minecraft.sRPG.sRPG;
 import com.behindthemirrors.minecraft.sRPG.Settings;
 
 public class Watcher {
@@ -162,7 +162,7 @@ public class Watcher {
 	}
 	
 	public static void checkTimedTriggers() {
-		for (World world : SRPG.plugin.getServer().getWorlds()) {
+		for (World world : sRPG.plugin.getServer().getWorlds()) {
 			ArrayList<String> triggers = new ArrayList<String>();
 			if (!Settings.worldBlacklist.contains(world)) {
 				long previous = previousTime.get(world);

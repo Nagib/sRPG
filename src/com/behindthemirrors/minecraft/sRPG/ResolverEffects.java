@@ -19,7 +19,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.Vector;
-import org.bukkit.util.config.ConfigurationNode;
+import org.bukkit.configuration.ConfigurationSection;
 
 import com.behindthemirrors.minecraft.sRPG.dataStructures.EffectDescriptor;
 import com.behindthemirrors.minecraft.sRPG.dataStructures.ProfileNPC;
@@ -30,8 +30,8 @@ import com.behindthemirrors.minecraft.sRPG.dataStructures.Watcher;
 
 public class ResolverEffects {
 
-	static void setCombatState(CombatInstance combat, ConfigurationNode node) {
-		if (SRPG.generator.nextDouble() < node.getDouble("chance", 1.0)) {
+	static void setCombatState(CombatInstance combat, ConfigurationSection node) {
+		if (sRPG.generator.nextDouble() < node.getDouble("chance", 1.0)) {
 			if (node.getBoolean("canceled", false)) {
 				combat.cancel();
 			} else if (node.getBoolean("crit", false)) {
@@ -46,11 +46,11 @@ public class ResolverEffects {
 		}
 	}
 	
-	static void combatBoost(CombatInstance combat, ConfigurationNode node, EffectDescriptor descriptor) {
+	static void combatBoost(CombatInstance combat, ConfigurationSection node, EffectDescriptor descriptor) {
 		if (combat == null) {
 			return;
 		}
-		List<String> levelbased = node.getStringList("level-based",new ArrayList<String>());
+		List<String> levelbased = node.getStringList("level-based");
 		Double value = (levelbased.contains("value")?descriptor.levelfactor():1.0)*descriptor.potency*node.getDouble("value",0.0);
 		String stat = node.getString("name");
 		if (stat.equalsIgnoreCase("crit-chance")) {
@@ -72,11 +72,11 @@ public class ResolverEffects {
 		}
 	}
 	
-	static void applyBuff(ProfileNPC source, ProfileNPC target, ConfigurationNode node,EffectDescriptor descriptor) {
+	static void applyBuff(ProfileNPC source, ProfileNPC target, ConfigurationSection node,EffectDescriptor descriptor) {
 		if (source == null || target == null) {
 			return;
 		}
-		List<String> levelbased = node.getStringList("level-based",new ArrayList<String>());
+		List<String> levelbased = node.getStringList("level-based");
 		String name = node.getString("name");
 		EffectDescriptor buffDescriptor = descriptor.copy(source.jobLevels.get(source.currentJob));
 		buffDescriptor.duration = (int)(levelbased.contains("duration")?descriptor.levelfactor():1.0)*node.getInt("duration", 0)*descriptor.potency;
@@ -84,23 +84,23 @@ public class ResolverEffects {
 		target.addEffect(buff, buffDescriptor);
 		Messager.sendMessage(target, "acquired-buff",buff.signature);
 	}
-	static void directDamage(ProfileNPC profile, ConfigurationNode node, EffectDescriptor descriptor) {
+	static void directDamage(ProfileNPC profile, ConfigurationSection node, EffectDescriptor descriptor) {
 		if (profile == null) {
 			return;
 		}
-		List<String> levelbased = node.getStringList("level-based",new ArrayList<String>());
+		List<String> levelbased = node.getStringList("level-based");
 		profile.entity.damage((int) (node.getDouble("value", 0) * descriptor.potency * (levelbased.contains("value")?descriptor.levelfactor():1.0)));
 	}
 	
-	static void manipulateItem(ProfileNPC source, ProfileNPC target, ConfigurationNode node, EffectDescriptor descriptor) {
+	static void manipulateItem(ProfileNPC source, ProfileNPC target, ConfigurationSection node, EffectDescriptor descriptor) {
 		String action = node.getString("action");
-		ArrayList<String> locations = (ArrayList<String>)node.getStringList("location", new ArrayList<String>());
+		ArrayList<String> locations = (ArrayList<String>)node.getStringList("location");
 		if (action == null) {
 			return;
 		}
 		
-		ArrayList<Material> whitelist = MiscBukkit.parseMaterialList(node.getStringList("whitelist", new ArrayList<String>()));
-		ArrayList<Material> blacklist = MiscBukkit.parseMaterialList(node.getStringList("blacklist", new ArrayList<String>()));
+		ArrayList<Material> whitelist = MiscBukkit.parseMaterialList(node.getStringList("whitelist"));
+		ArrayList<Material> blacklist = MiscBukkit.parseMaterialList(node.getStringList("blacklist"));
 		
 		ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
 		for (String location : locations) {
@@ -138,7 +138,7 @@ public class ResolverEffects {
 					}
 				}
 				if (!node.getBoolean("all", false)) {
-					int choice = slots.get(SRPG.generator.nextInt(slots.size()));
+					int choice = slots.get(sRPG.generator.nextInt(slots.size()));
 					slots.clear();
 					slots.add(choice);
 				}
@@ -177,7 +177,7 @@ public class ResolverEffects {
 					}
 				}
 				if (!node.getBoolean("all", false)) {
-					ItemStack choice = stacks.get(SRPG.generator.nextInt(stacks.size()));
+					ItemStack choice = stacks.get(sRPG.generator.nextInt(stacks.size()));
 					stacks.clear();
 					stacks.add(choice);
 				}
@@ -197,7 +197,7 @@ public class ResolverEffects {
 		}
 	}
 	
-	static void transmuteItem(ProfileNPC profile, ConfigurationNode node, EffectDescriptor descriptor) {
+	static void transmuteItem(ProfileNPC profile, ConfigurationSection node, EffectDescriptor descriptor) {
 		if (profile instanceof ProfilePlayer) {
 			Player player = ((ProfilePlayer)profile).player;
 			// parse ingredients and results
@@ -207,13 +207,13 @@ public class ResolverEffects {
 			ArrayList<Integer> temp2;
 			for (int i=0;i<2;i++) {
 				transmute.add(new HashMap<Material, Integer>());
-				temp = (ArrayList<String>) node.getStringList(keys[i], new ArrayList<String>());
-				temp2 = (ArrayList<Integer>) node.getIntList(keys[i]+"-amounts", new ArrayList<Integer>());
+				temp = (ArrayList<String>) node.getStringList(keys[i]);
+				temp2 = (ArrayList<Integer>) node.getIntegerList(keys[i]+"-amounts");
 				for (int j=0;j<temp.size();j++ ) {
 					transmute.get(i).put(MiscBukkit.parseMaterial(temp.get(j)), temp2.get(j));
 				}
 			}
-			SRPG.dout(transmute.toString(),"effects");
+			sRPG.dout(transmute.toString(),"effects");
 			// randomize the ingredients and results if applicable
 			Boolean[] flags = new Boolean[] {!node.getBoolean("consume-all", false),node.getBoolean("random-result", false)};
 			for (int i=0;i<2;i++) {
@@ -225,7 +225,7 @@ public class ResolverEffects {
 					} else {
 						ArrayList<Material> pool = new ArrayList<Material>(transmute.get(i).keySet());
 						while (!pool.isEmpty()) {
-							choice = pool.get(SRPG.generator.nextInt(pool.size()));
+							choice = pool.get(sRPG.generator.nextInt(pool.size()));
 							if (i == 0 && !player.getInventory().contains(transmute.get(i).get(choice))) {
 								pool.remove(choice);
 								continue;
@@ -238,7 +238,7 @@ public class ResolverEffects {
 					transmute.set(i, selection);
 				}
 			}
-			SRPG.dout(transmute.toString(),"effects");
+			sRPG.dout(transmute.toString(),"effects");
 			// check for ingredients
 			boolean sufficient = !transmute.get(0).isEmpty();
 			HashMap<Material,HashMap<ItemStack,Integer>> stacks = new HashMap<Material,HashMap<ItemStack,Integer>>(); 
@@ -263,12 +263,12 @@ public class ResolverEffects {
 				}
 				((ProfilePlayer)profile).validateActives();
 			} else {
-				SRPG.dout("not enough items in inventory","effects");
+				sRPG.dout("not enough items in inventory","effects");
 			}
 		}
 	}
 	
-	static void blockChange(ProfileNPC profile, Location location, Block block, ConfigurationNode node, EffectDescriptor descriptor) {
+	static void blockChange(ProfileNPC profile, Location location, Block block, ConfigurationSection node, EffectDescriptor descriptor) {
 		if (block == null) {
 			return;
 		}
@@ -307,7 +307,7 @@ public class ResolverEffects {
 					node.getInt("length", 0)));
 		} else if (shape.equalsIgnoreCase("cross3D")) {
 			ArrayList<BlockFace> ignore = new ArrayList<BlockFace>();
-			for (String direction : node.getStringList("ignore",new ArrayList<String>())) {
+			for (String direction : node.getStringList("ignore")) {
 				if (relative) {
 					ignore.add(MiscGeometric.relativeFacing(direction , location));
 				} else {
@@ -326,7 +326,7 @@ public class ResolverEffects {
 				node.getInt("length", 0)));
 		} else if (shape.equalsIgnoreCase("sphere")) {
 			ArrayList<BlockFace> ignore = new ArrayList<BlockFace>();
-			for (String direction : node.getStringList("ignore",new ArrayList<String>())) {
+			for (String direction : node.getStringList("ignore")) {
 				if (relative) {
 					ignore.add(MiscGeometric.relativeFacing(direction , location));
 				} else {
@@ -342,7 +342,7 @@ public class ResolverEffects {
 		boolean cascadeBlocks = node.getBoolean("cascade-blocks", false);
 		int combinedDelay = 0;
 		
-		ArrayList<Material> whitelist = MiscBukkit.parseMaterialList(node.getStringList("whitelist", new ArrayList<String>()));
+		ArrayList<Material> whitelist = MiscBukkit.parseMaterialList(node.getStringList("whitelist"));
 		
 		ArrayList<Block> blocks = new ArrayList<Block>();
 		ArrayList<Integer> delays = new ArrayList<Integer>();
@@ -380,7 +380,7 @@ public class ResolverEffects {
 			} else if (revertMode.equalsIgnoreCase("lifo+")) {
 				factor = 1.5;
 			} else if (revertMode.equalsIgnoreCase("random")) {
-				factor = 1.2+SRPG.generator.nextDouble();
+				factor = 1.2+sRPG.generator.nextDouble();
 			}
 		}
 		
@@ -390,17 +390,17 @@ public class ResolverEffects {
 			if (whitelist.isEmpty() || whitelist.contains(activeBlock.getType())) {
 				
 				if (material == Material.AIR && !temporary) {
-					SRPG.cascadeQueueScheduler.scheduleBlockBreak(activeBlock, activeDelay, profile instanceof ProfilePlayer && node.getBoolean("break-event", false) ? (ProfilePlayer)profile : null, drop);
+					sRPG.cascadeQueueScheduler.scheduleBlockBreak(activeBlock, activeDelay, profile instanceof ProfilePlayer && node.getBoolean("break-event", false) ? (ProfilePlayer)profile : null, drop);
 				} else if (temporary) {
-					SRPG.cascadeQueueScheduler.scheduleTemporaryBlockChange(activeBlock, material, activeDelay, (int) (activeRevertDelay + factor*(lastDelay - activeDelay)), node.getBoolean("protect", false));
+					sRPG.cascadeQueueScheduler.scheduleTemporaryBlockChange(activeBlock, material, activeDelay, (int) (activeRevertDelay + factor*(lastDelay - activeDelay)), node.getBoolean("protect", false));
 				} else {
-					SRPG.cascadeQueueScheduler.scheduleBlockChange(activeBlock, material, activeDelay);
+					sRPG.cascadeQueueScheduler.scheduleBlockChange(activeBlock, material, activeDelay);
 				}
 			}
 		}
 	}
 
-	public static void impulse(ProfileNPC profile, Location location, ConfigurationNode node, EffectDescriptor descriptor) {
+	public static void impulse(ProfileNPC profile, Location location, ConfigurationSection node, EffectDescriptor descriptor) {
 		if (location == null) {
 			return;
 		}
@@ -425,7 +425,7 @@ public class ResolverEffects {
 			force = node.getDouble("force", 0);
 		}
 		
-		SRPG.dout(""+yaw+" "+pitch+" "+force,"effects");
+		sRPG.dout(""+yaw+" "+pitch+" "+force,"effects");
 		
 		if (node.getBoolean("relative", false)) {
 			yaw += location.getYaw();
@@ -441,13 +441,13 @@ public class ResolverEffects {
 			v = v.add(profile.entity.getVelocity());
 		}
 		
-		SRPG.dout(profile.entity.getVelocity().toString(),"effects");
+		sRPG.dout(profile.entity.getVelocity().toString(),"effects");
 		profile.entity.setVelocity(v);
-		SRPG.dout(v.length()+"","effects");
-		SRPG.dout(profile.entity.getVelocity().toString(),"effects");
+		sRPG.dout(v.length()+"","effects");
+		sRPG.dout(profile.entity.getVelocity().toString(),"effects");
 	}
 	
-	public static void lightning(Block block, ConfigurationNode node, EffectDescriptor descriptor) {
+	public static void lightning(Block block, ConfigurationSection node, EffectDescriptor descriptor) {
 		Location location = block.getLocation();
 		if (node.getBoolean("damaging", false)) {
 			location.getWorld().strikeLightning(location);
@@ -456,7 +456,7 @@ public class ResolverEffects {
 		}
 	}
 
-	public static void changeBlockDrops(BlockBreakEvent event, Block block, ConfigurationNode node, EffectDescriptor descriptor) {
+	public static void changeBlockDrops(BlockBreakEvent event, Block block, ConfigurationSection node, EffectDescriptor descriptor) {
 		if (node.getString("mode").equalsIgnoreCase("multiply") && !Watcher.givesOk(block)) {
 			return;
 		}
@@ -468,7 +468,7 @@ public class ResolverEffects {
 		}
 	}
 	
-	public static void changeEntityDrops(EntityDeathEvent event, LivingEntity entity, ConfigurationNode node, EffectDescriptor descriptor) {
+	public static void changeEntityDrops(EntityDeathEvent event, LivingEntity entity, ConfigurationSection node, EffectDescriptor descriptor) {
 		ArrayList<ItemStack> defaults = new ArrayList<ItemStack>();
 		defaults.addAll(MiscBukkit.getNaturalDrops(entity));
 		if (changeDrops(node,defaults,entity.getLocation(),descriptor)) {
@@ -476,7 +476,7 @@ public class ResolverEffects {
 		}
 	}
 	
-	public static boolean changeDrops(ConfigurationNode node, ArrayList<ItemStack> defaults, Location location, EffectDescriptor descriptor) {
+	public static boolean changeDrops(ConfigurationSection node, ArrayList<ItemStack> defaults, Location location, EffectDescriptor descriptor) {
 		ArrayList<ItemStack> drops = new ArrayList<ItemStack>();
 		
 		String mode = node.getString("mode");
@@ -487,21 +487,21 @@ public class ResolverEffects {
 			}
 		}
 		if (mode.equalsIgnoreCase("add") || mode.equalsIgnoreCase("replace")) {
-			ArrayList<Material> materials = MiscBukkit.parseMaterialList(node.getStringList("items", new ArrayList<String>()));
-			ArrayList<Integer> amounts = (ArrayList<Integer>) node.getIntList("amounts", new ArrayList<Integer>());
+			ArrayList<Material> materials = MiscBukkit.parseMaterialList(node.getStringList("items"));
+			ArrayList<Integer> amounts = (ArrayList<Integer>) node.getIntegerList("amounts");
 			if (materials.size() == amounts.size()) {
 				for (int i = 0; i<materials.size();i++) {
 					ItemStack drop = new ItemStack(materials.get(i),(int)(amounts.get(i) * descriptor.potency * node.getDouble("factor", 1)));
 					drops.add(drop);
 				}
 			} else {
-				SRPG.output("Error during drop change effect handling (different sizes for items/amounts), check your skill config for incorrect material names or wrong lists");
+				sRPG.output("Error during drop change effect handling (different sizes for items/amounts), check your skill config for incorrect material names or wrong lists");
 				return false;
 			}
 		}
 		
 		if (!node.getBoolean("all", true)) {
-			ItemStack choice = drops.get(SRPG.generator.nextInt(drops.size()));
+			ItemStack choice = drops.get(sRPG.generator.nextInt(drops.size()));
 			drops.clear();
 			drops.add(choice);
 		}

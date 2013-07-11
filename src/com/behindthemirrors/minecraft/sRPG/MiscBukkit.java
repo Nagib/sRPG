@@ -89,12 +89,12 @@ public class MiscBukkit {
 			case 9: ; break;
 			case 10: ; break;
 			case 11: ; break;
-			case 13: if (SRPG.generator.nextDouble() < 0.1) {item = new ItemStack(318,1);} else {item = new ItemStack(13, 1);} break;
+			case 13: if (sRPG.generator.nextDouble() < 0.1) {item = new ItemStack(318,1);} else {item = new ItemStack(13, 1);} break;
 			case 16: item = new ItemStack(263, 1); break;
 			case 17: item = new ItemStack(17, 1,(short)0,block.getData()); break;
-			case 18: if (SRPG.generator.nextDouble() < 0.05) {item = new ItemStack(6,1,(short)0,block.getData());} break;
+			case 18: if (sRPG.generator.nextDouble() < 0.05) {item = new ItemStack(6,1,(short)0,block.getData());} break;
 			case 20: ; break;
-			case 21: item = new ItemStack(351,SRPG.generator.nextInt(5)+4); break;
+			case 21: item = new ItemStack(351,sRPG.generator.nextInt(5)+4); break;
 			case 26: item = new ItemStack(355, 1); break;
 			case 35: item = new ItemStack(35,1,(short)0,block.getData()); break;
 			case 43: item = new ItemStack(44,1,(short)0,block.getData()); break;
@@ -113,8 +113,8 @@ public class MiscBukkit {
 			case 67: item = new ItemStack(4,1); break;
 			case 68: item = new ItemStack(323,1); break;
 			case 71: item = new ItemStack(330,1); break;
-			case 73: item = new ItemStack(331,SRPG.generator.nextInt(2)+4); break;
-			case 74: item = new ItemStack(331,SRPG.generator.nextInt(2)+4); break;
+			case 73: item = new ItemStack(331,sRPG.generator.nextInt(2)+4); break;
+			case 74: item = new ItemStack(331,sRPG.generator.nextInt(2)+4); break;
 			case 75: item = new ItemStack(76,1); break;
 			case 78: ; break;
 			case 79: ; break;
@@ -243,8 +243,8 @@ public class MiscBukkit {
 		}
 		reworked *= 0.1;
 		double original = 0.08 * basesum * durability / (maxdurability > 0 ? maxdurability : 1.0);
-		SRPG.dout("original armor mitigation: "+original,"combat");
-		SRPG.dout("reworked armor mitigation: "+reworked,"combat");
+		sRPG.dout("original armor mitigation: "+original,"combat");
+		sRPG.dout("reworked armor mitigation: "+reworked,"combat");
 		
 		return (1.0 - reworked) / (1.0 - original);
 	}

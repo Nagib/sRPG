@@ -14,6 +14,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.sql.PreparedStatement;
 
+import org.bukkit.configuration.ConfigurationSection;
+
 import org.bukkit.entity.Player;
 import com.avaje.ebeaninternal.server.lib.sql.DataSourceException;
 
@@ -71,7 +73,11 @@ public class Database {
                 "`locale` "+text+" NOT NULL" +
                 ") "+engine+";");
         String sql = prefix + "jobxp` (`user_id` "+uint+" NOT NULL PRIMARY KEY";
-        for (String name : Settings.jobsettings.getKeys("tree")) {
+        
+        
+        ConfigurationSection tree = Settings.jobsettings.getConfigurationSection("tree");
+        
+        for (String name : tree.getKeys(true)) {
         	sql += ",`" + name + "` "+uint+" NOT NULL DEFAULT 0";
         }
         sql += ") "+engine+";";
@@ -81,23 +87,23 @@ public class Database {
     public void updateDatabase(String version) {
     	createStructure();
     	// here be version-dependent database update routines
-    	Integer id = SRPG.database.getSingleIntValue("global","pk","pk",1);
+    	Integer id = sRPG.database.getSingleIntValue("global","pk","pk",1);
 		if (id == null) {
 			update("INSERT INTO " + tablePrefix + "global (pk,version) VALUES (1,'" + version + "');");
 		}
-        String db_version = SRPG.database.getSingleStringValue("global","version","pk",1);
+        String db_version = sRPG.database.getSingleStringValue("global","version","pk",1);
         if (!version.equalsIgnoreCase(db_version)) {
-        	SRPG.output("Version changed from "+db_version+" to "+version+", updating database structure if necessary");
+        	sRPG.output("Version changed from "+db_version+" to "+version+", updating database structure if necessary");
         }
         // change database according to version differences
         if (db_version.equalsIgnoreCase("0.5alpha1") || db_version.equalsIgnoreCase("0.5alpha2")) {
-        	SRPG.output("updating user table");
+        	sRPG.output("updating user table");
         	createColumn("users","class",text+" NOT NULL DEFAULT 'adventurer' AFTER user");
         	createColumn("users","hp",uint+" NOT NULL DEFAULT 0 AFTER locale");
         	db_version = "0.5alpha3";
         }
         if (db_version.equalsIgnoreCase("0.5alpha3")) {
-        	SRPG.output("changing lots of tables");
+        	sRPG.output("changing lots of tables");
         	dropTable("chargedata");
         	dropTable("skillpoints");
         	update("ALTER TABLE " + tablePrefix + "users CHANGE COLUMN class currentjob "+text+";");
@@ -115,7 +121,7 @@ public class Database {
         
         ArrayList<String> columns = new ArrayList<String>();
 		columns.addAll(Settings.jobs.keySet());
-		SRPG.database.createIntColumnsIfNotExist("jobxp", columns);
+		sRPG.database.createIntColumnsIfNotExist("jobxp", columns);
     }
     
     // check if its closed
@@ -130,12 +136,12 @@ public class Database {
             	connection = DriverManager.getConnection("jdbc:sqlite:plugins/srpg/srpg.db");
             }
             
-            SRPG.output("Connection success");
+            sRPG.output("Connection success");
         } catch (SQLException ex) {
-        	SRPG.output("Connection to database failed. Check status of MySQL server or write permissions for SQLite .db");
-        	SRPG.output("SQLException: " + ex.getMessage());
-        	SRPG.output("SQLState: " + ex.getSQLState());
-        	SRPG.output("VendorError: " + ex.getErrorCode());
+        	sRPG.output("Connection to database failed. Check status of MySQL server or write permissions for SQLite .db");
+        	sRPG.output("SQLException: " + ex.getMessage());
+        	sRPG.output("SQLState: " + ex.getSQLState());
+        	sRPG.output("VendorError: " + ex.getErrorCode());
         }
     }
     
@@ -144,13 +150,13 @@ public class Database {
 	        if(!Settings.mySQLenabled || connection.isValid(5)) {
 	            return true;
 	        } else {
-	        	SRPG.output("Reconnecting to MySQL...");
+	        	sRPG.output("Reconnecting to MySQL...");
 	        	getConnection();
 	        	if(connection.isValid(5)) {
-	        		SRPG.profileManager.clear();
+	        		sRPG.profileManager.clear();
 		            
-		            for(Player player : SRPG.plugin.getServer().getOnlinePlayers()) {
-		                SRPG.profileManager.add(player);
+		            for(Player player : sRPG.plugin.getServer().getOnlinePlayers()) {
+		                sRPG.profileManager.add(player);
 		            }
 		            return true;
 	        	}
@@ -170,9 +176,9 @@ public class Database {
                 ps.executeUpdate();
                 return true;
     		} catch(SQLException ex) {
-				SRPG.output("SQLException: " + ex.getMessage());
-				SRPG.output("SQLState: " + ex.getSQLState());
-				SRPG.output("VendorError: " + ex.getErrorCode());
+				sRPG.output("SQLException: " + ex.getMessage());
+				sRPG.output("SQLState: " + ex.getSQLState());
+				sRPG.output("VendorError: " + ex.getErrorCode());
     		} finally {
     			closeQuietly(ps);
     		}
@@ -196,11 +202,16 @@ public class Database {
     public boolean setSingleIntValue(String table, String column, Integer value, String keyColumn, Integer key) {
     	return setSingleValueRaw(table, column, ""+value, keyColumn, ""+key);
     }
+
+    public boolean setSingleDoubleValue(String table, String column, Double value, String keyColumn, Integer key) {
+    	return setSingleValueRaw(table, column, ""+value, keyColumn, ""+key);
+    }
+    
     // key/value type overloads end
     
     public boolean setSingleValueRaw(String table, String column, String value, String keyColumn, String key) {
     	String sql = "UPDATE "+tablePrefix+table+" SET "+column+" = "+value+" WHERE "+keyColumn+" = "+key+";";
-		SRPG.dout("setSingleValue: "+sql,"db");
+		sRPG.dout("setSingleValue: "+sql,"db");
     	return update(sql);
     }
     
@@ -215,7 +226,7 @@ public class Database {
     		sql += entry.getKey() + " = " + entry.getValue();
     	}
     	sql += "WHERE "+keyColumn+" = "+key+";";
-		SRPG.dout("setValues: "+sql,"db");
+		sRPG.dout("setValues: "+sql,"db");
     	return update(sql);
     }
     
@@ -229,7 +240,7 @@ public class Database {
     // value type overloads end
     public boolean insertSingleValueRaw(String table, String column, String value) {
     	String sql = "INSERT INTO "+tablePrefix+table+" ("+column+") VALUES ("+value+");";
-		SRPG.dout("insertSingleValue: "+sql,"db");
+		sRPG.dout("insertSingleValue: "+sql,"db");
     	return update(sql);
     }
     
@@ -256,7 +267,7 @@ public class Database {
     	columns.addAll(map.keySet());
     	values.addAll(map.values());
     	String sql = "INSERT INTO "+tablePrefix+table+" ("+MiscGeneric.join(columns, ",")+") VALUES ("+MiscGeneric.join(values, ",")+");";
-		SRPG.dout("insertValues: "+sql,"db");
+		sRPG.dout("insertValues: "+sql,"db");
     	return update(sql);
     }
     
@@ -325,9 +336,9 @@ public class Database {
             	columns.add(rs.getMetaData().getColumnName(i));
             }
         } catch (SQLException ex) {
-        	SRPG.output("SQLException: " + ex.getMessage());
-        	SRPG.output("SQLState: " + ex.getSQLState());
-        	SRPG.output("VendorError: " + ex.getErrorCode());
+        	sRPG.output("SQLException: " + ex.getMessage());
+        	sRPG.output("SQLState: " + ex.getSQLState());
+        	sRPG.output("VendorError: " + ex.getErrorCode());
         } finally {
         	closeQuietly(ps);
         	closeQuietly(rs);
@@ -343,10 +354,18 @@ public class Database {
 			return null;
 		}
     }
-    
+
     public Integer getSingleIntValue(String table, String column, String keyColumn, Integer key) {
     	try {
     		return Integer.parseInt(getSingleValueRaw(table, column, keyColumn, ""+key));
+    	} catch (NumberFormatException ex) {
+    		return null;
+    	}
+    }
+    
+    public Double getSingleDoubleValue(String table, String column, String keyColumn, Integer key) {
+    	try {
+    		return Double.parseDouble(getSingleValueRaw(table, column, keyColumn, ""+key));
     	} catch (NumberFormatException ex) {
     		return null;
     	}
@@ -363,7 +382,7 @@ public class Database {
     public String getSingleValueRaw(String table, String column, String keyColumn, String key) {
     	String sql = "SELECT "+column+" FROM "+tablePrefix+table+" WHERE "+keyColumn+" = "+key+";";
     	try {
-    		SRPG.dout("getSingleValue: "+sql,"db");
+    		sRPG.dout("getSingleValue: "+sql,"db");
     		return query(sql).get(0).get(0);
     	} catch (IndexOutOfBoundsException ex) {
     		return null;
@@ -403,7 +422,7 @@ public class Database {
     // key types overloads end
     public ArrayList<String> getSingleRowRaw(String table, ArrayList<String> columns, String keyColumn, String key) {
     	String sql = "SELECT "+MiscGeneric.join(columns, ",")+" FROM "+tablePrefix+table+" WHERE "+keyColumn+" = "+key+";";
-		SRPG.dout("getSingleRow: "+sql,"db");
+		sRPG.dout("getSingleRow: "+sql,"db");
     	try { 
     		return query(sql).get(0);
     	} catch (IndexOutOfBoundsException ex) {
@@ -438,9 +457,9 @@ public class Database {
                 rows.add(column);
             }
         } catch (SQLException ex) {
-        	SRPG.output("SQLException: " + ex.getMessage());
-        	SRPG.output("SQLState: " + ex.getSQLState());
-        	SRPG.output("VendorError: " + ex.getErrorCode());
+        	sRPG.output("SQLException: " + ex.getMessage());
+        	sRPG.output("SQLState: " + ex.getSQLState());
+        	sRPG.output("VendorError: " + ex.getErrorCode());
         } finally {
         	closeQuietly(ps);
         	closeQuietly(rs);

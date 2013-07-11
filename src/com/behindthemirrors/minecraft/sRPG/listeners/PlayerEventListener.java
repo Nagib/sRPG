@@ -6,47 +6,55 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+
+import org.bukkit.event.Listener;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
-import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
-import com.behindthemirrors.minecraft.sRPG.SRPG;
+import com.behindthemirrors.minecraft.sRPG.sRPG;
 import com.behindthemirrors.minecraft.sRPG.Settings;
 import com.behindthemirrors.minecraft.sRPG.dataStructures.ProfilePlayer;
 import com.behindthemirrors.minecraft.sRPG.dataStructures.Watcher;
 
-
-public class PlayerEventListener extends PlayerListener {
+public class PlayerEventListener implements Listener {
 	
+        @EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerJoin(PlayerJoinEvent event) {
-		SRPG.profileManager.add(event.getPlayer());
+		sRPG.profileManager.add(event.getPlayer());
 	}
-	
+        
+        @EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerQuit(PlayerQuitEvent event) {
-		SRPG.profileManager.remove(event.getPlayer());
+		sRPG.profileManager.remove(event.getPlayer());
 	}
 	
+        @EventHandler(priority = EventPriority.MONITOR)
 	public void onItemHeldChange (PlayerItemHeldEvent event) {
 		if (Settings.worldBlacklist.contains(event.getPlayer().getWorld())) {
 			return;
 		}
-		ProfilePlayer profile = SRPG.profileManager.get(event.getPlayer());
+		ProfilePlayer profile = sRPG.profileManager.get(event.getPlayer());
 		profile.prepared = false;
 		profile.validateActives(profile.player.getInventory().getItem(event.getNewSlot()).getType());
 	}
 	
+        @EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerInteractEntity(PlayerInteractEntityEvent event) {
-		SRPG.dout("player interact entity event"+event.getRightClicked().toString(),"actives");
+		sRPG.dout("player interact entity event"+event.getRightClicked().toString(),"actives");
 	}
 	
+        @EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerPickupItem(PlayerPickupItemEvent event) {
 		if (Settings.worldBlacklist.contains(event.getPlayer().getWorld())) {
 			return;
@@ -55,6 +63,8 @@ public class PlayerEventListener extends PlayerListener {
 			event.setCancelled(true);
 		}
 	}
+        
+        @EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerMove(PlayerMoveEvent event) {
 		if (Settings.worldBlacklist.contains(event.getPlayer().getWorld())) {
 			return;
@@ -67,18 +77,19 @@ public class PlayerEventListener extends PlayerListener {
 			}
 			ArrayList<String> triggers = new ArrayList<String>();
 			triggers.add("move");
-			Watcher.checkTriggers(SRPG.profileManager.get(event.getPlayer()), triggers, to);
+			Watcher.checkTriggers(sRPG.profileManager.get(event.getPlayer()), triggers, to);
 		}
 	}
 	
+        @EventHandler(priority = EventPriority.HIGHEST)
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if (Settings.worldBlacklist.contains(event.getPlayer().getWorld())) {
 			return;
 		}
-		SRPG.dout("player interact event"+event.getAction(),"actives");
+		sRPG.dout("player interact event"+event.getAction(),"actives");
 		Action action = event.getAction();
 		Player player = event.getPlayer();
-		ProfilePlayer profile = SRPG.profileManager.get(player);
+		ProfilePlayer profile = sRPG.profileManager.get(player);
 		Material material = null;
 		if (action == Action.RIGHT_CLICK_BLOCK || action == Action.LEFT_CLICK_BLOCK) {
 			material = event.getClickedBlock().getType();
@@ -97,21 +108,23 @@ public class PlayerEventListener extends PlayerListener {
 		}
 	}
 	
+        @EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerToggleSneak(PlayerToggleSneakEvent event) {
 		if (Settings.worldBlacklist.contains(event.getPlayer().getWorld())) {
 			return;
 		}
 		Player player = event.getPlayer();
 		if (!player.isSneaking()) {
-			SRPG.profileManager.get(player).sneakTimeStamp = System.currentTimeMillis();
+			sRPG.profileManager.get(player).sneakTimeStamp = System.currentTimeMillis();
 		}
 	}
 	
+        @EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerRespawn(PlayerRespawnEvent event) {
 		if (Settings.worldBlacklist.contains(event.getPlayer().getWorld())) {
 			return;
 		}
-		ProfilePlayer data = SRPG.profileManager.get(event.getPlayer());
+		ProfilePlayer data = sRPG.profileManager.get(event.getPlayer());
 		data.hp = data.hp_max;
 	}
 	

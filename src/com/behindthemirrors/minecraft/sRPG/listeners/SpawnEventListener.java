@@ -6,19 +6,21 @@ import org.bukkit.World;
 import org.bukkit.entity.CreatureType;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+
+import org.bukkit.event.Listener;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+
 import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.EntityListener;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 
-import com.behindthemirrors.minecraft.sRPG.SRPG;
+import com.behindthemirrors.minecraft.sRPG.sRPG;
 import com.behindthemirrors.minecraft.sRPG.Settings;
 import com.behindthemirrors.minecraft.sRPG.MiscBukkit;
 import com.behindthemirrors.minecraft.sRPG.dataStructures.EffectDescriptor;
 import com.behindthemirrors.minecraft.sRPG.dataStructures.ProfileNPC;
 
-
-
-public class SpawnEventListener extends EntityListener {
+public class SpawnEventListener implements Listener {
 	
 	// for testing
 	static boolean spawnInvincible = false;
@@ -27,7 +29,7 @@ public class SpawnEventListener extends EntityListener {
 	public static boolean dangerousDepths;
 	
 	public void addExistingCreatures() {
-		for (World world : SRPG.plugin.getServer().getWorlds()) {
+		for (World world : sRPG.plugin.getServer().getWorlds()) {
 			if (Settings.worldBlacklist.contains(world)) {
 				continue;
 			}
@@ -39,6 +41,7 @@ public class SpawnEventListener extends EntityListener {
 		}
 	}
 	
+        @EventHandler(priority = EventPriority.MONITOR)
 	public void onCreatureSpawn(CreatureSpawnEvent event) {
 		if (Settings.worldBlacklist.contains(event.getLocation().getWorld())) {
 			return;
@@ -47,11 +50,11 @@ public class SpawnEventListener extends EntityListener {
 		LivingEntity entity = (LivingEntity)event.getEntity();
 		// for testing
 		if (Settings.mobs.containsKey(creature)) {
-			ProfileNPC profile = SRPG.profileManager.get(entity);
+			ProfileNPC profile = sRPG.profileManager.get(entity);
 			profile.currentJob = Settings.mobs.get(creature);
 			if (profile.currentJob == null) {
 				profile.currentJob = Settings.mobs.get("default");
-				SRPG.dout("Warning: could not find fitting job for "+creature);
+				sRPG.dout("Warning: could not find fitting job for "+creature);
 			}
 			profile.jobLevels.put(profile.currentJob, 1);
 			// depth modifier
@@ -65,10 +68,10 @@ public class SpawnEventListener extends EntityListener {
 			profile.recalculate();
 			entity.setHealth((int) profile.getStat("health"));
 		} else {
-			SRPG.output("Warning: spawned "+creature+", job not available");
+			sRPG.output("Warning: spawned "+creature+", job not available");
 		}
 		if (spawnInvincible) {
-			SRPG.profileManager.get(entity).addEffect(Settings.passives.get("invincibility"), new EffectDescriptor(10));
+			sRPG.profileManager.get(entity).addEffect(Settings.passives.get("invincibility"), new EffectDescriptor(10));
 		}
 	}
 }

@@ -1,17 +1,16 @@
 package com.behindthemirrors.minecraft.sRPG.dataStructures;
 
-import org.bukkit.util.config.ConfigurationNode;
-
 import com.behindthemirrors.minecraft.sRPG.ResolverActive;
+import org.bukkit.configuration.ConfigurationSection;
 
 public class ScheduledEffect {
 	
 	String effect;
-	ConfigurationNode node;
+	ConfigurationSection node;
 	ArgumentsActive arguments;
 	public int ticksToActivation;
 	
-	public ScheduledEffect(Integer delay, String effect, ConfigurationNode node, ArgumentsActive arguments) {
+	public ScheduledEffect(Integer delay, String effect, ConfigurationSection node, ArgumentsActive arguments) {
 		this.effect = effect;
 		this.node = node;
 		this.arguments = arguments;

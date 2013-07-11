@@ -8,9 +8,10 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.util.config.ConfigurationNode;
+import org.bukkit.configuration.ConfigurationSection;
 
-import com.behindthemirrors.minecraft.sRPG.SRPG;
+
+import com.behindthemirrors.minecraft.sRPG.sRPG;
 import com.behindthemirrors.minecraft.sRPG.Settings;
 import com.behindthemirrors.minecraft.sRPG.MiscBukkit;
 
@@ -41,7 +42,7 @@ public class ProfileNPC {
 				descriptor.duration = existent.duration;
 			}
 		} else {
-			SRPG.timedEffectManager.add(this);
+			sRPG.timedEffectManager.add(this);
 		}
 		effects.put(effect, descriptor);
 	}
@@ -94,7 +95,7 @@ public class ProfileNPC {
 		boolean found = false;
 		for (HashMap<Material, HashMap<Material,HashMap<String,Double>>> map : stats) {
 			if (map.isEmpty()) {
-				SRPG.dout("empty stat map while getting stats of "+this.toString()+" with job "+currentJob);
+				sRPG.dout("empty stat map while getting stats of "+this.toString()+" with job "+currentJob);
 				continue;
 			}
 			if (handMaterial != null && map.containsKey(handMaterial)) {
@@ -175,26 +176,26 @@ public class ProfileNPC {
 		for (Map.Entry<StructurePassive,EffectDescriptor> entry : passives.entrySet()) {
 			StructurePassive passive = entry.getKey();
 			EffectDescriptor descriptor = entry.getValue();
-			for (Map.Entry<String, ConfigurationNode> detailsEntry : passive.effects.entrySet()) {
+			for (Map.Entry<String, ConfigurationSection> detailsEntry : passive.effects.entrySet()) {
 				String effect = detailsEntry.getKey();
-				ConfigurationNode node = detailsEntry.getValue();
+				ConfigurationSection node = detailsEntry.getValue();
 				if (inheritance > 0 && !node.getBoolean("inherited", false)) {
 					continue;
 				}
-				if (effect.startsWith("boost") && node.getStringList("conditions", new ArrayList<String>()).isEmpty() && !(node.getDouble("chance", 1.0) < 1.0)) {
-					ArrayList<String> levelbased = (ArrayList<String>) node.getStringList("level-based", new ArrayList<String>());
+				if (effect.startsWith("boost") && node.getStringList("conditions").isEmpty() && !(node.getDouble("chance", 1.0) < 1.0)) {
+					ArrayList<String> levelbased = (ArrayList<String>) node.getStringList("level-based");
 					String name = node.getString("name");
 					Double value = node.getDouble("value", 0.0) * inheritancefactor * descriptor.potency;
 					if (levelbased.contains("value")) {
 						value *= (double)(descriptor.level == null ? 0 : descriptor.level) / descriptor.maxlevel;
 					}
 					// parse tools node
-					ArrayList<Material> tools = MiscBukkit.parseMaterialList(node.getStringList("tools", new ArrayList<String>()));
+					ArrayList<Material> tools = MiscBukkit.parseMaterialList(node.getStringList("tools"));
 					if (tools.isEmpty()) {
 						tools.add(null);
 					}
 					// parse versus node
-					ArrayList<Material> versus = MiscBukkit.parseMaterialList(node.getStringList("versus", new ArrayList<String>()));
+					ArrayList<Material> versus = MiscBukkit.parseMaterialList(node.getStringList("versus"));
 					if (versus.isEmpty()) {
 						versus.add(null);
 					}

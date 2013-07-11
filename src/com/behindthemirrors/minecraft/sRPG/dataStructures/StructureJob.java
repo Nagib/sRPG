@@ -7,9 +7,9 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.bukkit.Material;
-import org.bukkit.util.config.ConfigurationNode;
+import org.bukkit.configuration.ConfigurationSection;
 
-import com.behindthemirrors.minecraft.sRPG.SRPG;
+import com.behindthemirrors.minecraft.sRPG.sRPG;
 import com.behindthemirrors.minecraft.sRPG.Settings;
 import com.behindthemirrors.minecraft.sRPG.MiscBukkit;
 
@@ -39,7 +39,7 @@ public class StructureJob implements Comparable<StructureJob> {
 	
 	public HashMap<Material,Integer> drops;
 	
-	public StructureJob (String uniqueName, ConfigurationNode root) {
+	public StructureJob (String uniqueName, ConfigurationSection root) {
 		signature = uniqueName;
 		name = root.getString("name");
 		
@@ -49,7 +49,9 @@ public class StructureJob implements Comparable<StructureJob> {
 		tier = root.getInt("tier",1);
 		
 		defaults = new HashMap<String, Double>();
-		for (String stat : Settings.jobsettings.getKeys("settings.defaults")) {
+                ConfigurationSection settingsDefaultsSection = Settings.jobsettings.getConfigurationSection("settings.defaults");
+                
+		for (String stat : settingsDefaultsSection.getKeys(true)) {
 			if (stat.equals("maximum-level")) {
 				maximumLevel = root.getInt("defaults."+stat,Settings.jobsettings.getInt("settings.defaults."+stat, 1));
 			} else {
@@ -57,8 +59,10 @@ public class StructureJob implements Comparable<StructureJob> {
 			}
 		}
 		// add additional defaults for monsters
-		if (root.getKeys("defaults") != null) {
-			for (String stat : root.getKeys("defaults")) {
+                ConfigurationSection settingsSection = Settings.jobsettings.getConfigurationSection("defaults");
+                
+		if (settingsSection != null) {
+			for (String stat : settingsSection.getKeys(true)) {
 				if (!defaults.containsKey(stat)) {
 					defaults.put(stat, root.getDouble("defaults."+stat,1));
 				}
@@ -66,45 +70,49 @@ public class StructureJob implements Comparable<StructureJob> {
 		}
 		
 		traits = new HashMap<StructurePassive, EffectDescriptor>();
-		for (String trait : root.getStringList("traits",new ArrayList<String>())) {
+		for (String trait : root.getStringList("traits")) {
 			// TODO: make NPE safe
 			EffectDescriptor descriptor = new EffectDescriptor(trait,0,maximumLevel);
 			if (Settings.passives.containsKey(MiscBukkit.stripPotency(trait))) {
 				traits.put(Settings.passives.get(MiscBukkit.stripPotency(trait)),descriptor);
 			} else {
-				SRPG.output("Job "+name+" tried to load trait "+trait+" which is not available");
+				sRPG.output("Job "+name+" tried to load trait "+trait+" which is not available");
 			}
 		}
 		
 		passives = new HashMap<Integer, HashMap<StructurePassive,EffectDescriptor>>();
-		if (root.getKeys("passives") != null) {
-			for (String levelString : root.getKeys("passives")) {
+                ConfigurationSection passivesSection = Settings.jobsettings.getConfigurationSection("passives");
+                
+		if (passivesSection != null) {
+			for (String levelString : passivesSection.getKeys(true)) {
 				Integer level = Integer.parseInt(levelString.substring(levelString.indexOf(" ")+1));
 				passives.put(level, new HashMap<StructurePassive, EffectDescriptor>());
-				for (String passive : root.getStringList("passives."+levelString,new ArrayList<String>())) {
+				for (String passive : root.getStringList("passives."+levelString)) {
 					// TODO: make NPE safe
 					EffectDescriptor descriptor = new EffectDescriptor(passive,0,maximumLevel);
 					if (Settings.passives.containsKey(MiscBukkit.stripPotency(passive))) {
 						passives.get(level).put(Settings.passives.get(MiscBukkit.stripPotency(passive)), descriptor);
 					} else {
-						SRPG.output("Job "+name+" tried to load passive "+passive+" which is not available");
+						sRPG.output("Job "+name+" tried to load passive "+passive+" which is not available");
 					}
 				}
 			}
 		}
 		
 		actives = new HashMap<Integer, HashMap<StructureActive,EffectDescriptor>>();
-		if (root.getKeys("actives") != null) {
-			for (String levelString : root.getKeys("actives")) {
+                ConfigurationSection activesSection = Settings.jobsettings.getConfigurationSection("actives");
+                
+		if (activesSection != null) {
+			for (String levelString : activesSection.getKeys(true)) {
 				Integer level = Integer.parseInt(levelString.substring(levelString.indexOf(" ")+1));
 				actives.put(level, new HashMap<StructureActive, EffectDescriptor>());
-				for (String active : root.getStringList("actives."+levelString,new ArrayList<String>())) {
+				for (String active : root.getStringList("actives."+levelString)) {
 					// TODO: make NPE safe
 					EffectDescriptor descriptor = new EffectDescriptor(active,0,maximumLevel);
 					if (Settings.actives.containsKey(MiscBukkit.stripPotency(active))) {
 						actives.get(level).put(Settings.actives.get(MiscBukkit.stripPotency(active)),descriptor);
 					} else {
-						SRPG.output("Job "+name+" tried to load active "+active+" which is not available");
+						sRPG.output("Job "+name+" tried to load active "+active+" which is not available");
 					}
 				}
 			}

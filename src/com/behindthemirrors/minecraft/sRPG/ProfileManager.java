@@ -30,18 +30,18 @@ public class ProfileManager {
 		profile.name = player.getName();
 		profile.locale = Settings.defaultLocale;
 		
-		profile.id = SRPG.database.getSingleIntValue("users", "user_id", "user", player.getName());
+		profile.id = sRPG.database.getSingleIntValue("users", "user_id", "user", player.getName());
 		if (profile.id == null) {
 			enterIntoDatabase(player);
-			SRPG.output("created player data");
+			sRPG.output("created player data");
 		}
-		profile.initializeHUD();
+//		profile.initializeHUD();
 		load(player);
-		profile.updateChargeDisplay();
-		if (!SRPG.debug && Settings.config.getStringList("debuggers", new ArrayList<String>()).contains(profile.name)) {
-			SRPG.debug = true;
+//		profile.updateChargeDisplay();
+		if (!sRPG.debug && Settings.config.getStringList("debuggers").contains(profile.name)) {
+			sRPG.debug = true;
 			player.getWorld().setTime(0);
-			SRPG.dout("Debug mode enabled ("+profile.name+" has joined)");
+			sRPG.dout("Debug mode enabled ("+profile.name+" has joined)");
 		}
 	}
 	
@@ -79,7 +79,7 @@ public class ProfileManager {
 	public ProfileNPC get(LivingEntity entity) {
 		if (!profiles.containsKey(entity)) {
 			add(entity);
-			SRPG.dout("added new entity "+entity.toString()+" as it was requested and not already assigned a profile");
+			sRPG.dout("added new entity "+entity.toString()+" as it was requested and not already assigned a profile");
 		}
 		return profiles.get(entity);
 	}
@@ -102,7 +102,7 @@ public class ProfileManager {
 	}
 	
 	public boolean has(String name) {
-		return has(SRPG.plugin.getServer().getPlayer(name));
+		return has(sRPG.plugin.getServer().getPlayer(name));
 	}
 	
 	public boolean has(Player player) {
@@ -113,13 +113,13 @@ public class ProfileManager {
 	public void load(Player player) {
 		ProfilePlayer profile = (ProfilePlayer)profiles.get(player);
 		// read current class
-		String jobname = SRPG.database.getSingleStringValue("users", "currentjob", "user_id", profile.id);
+		String jobname = sRPG.database.getSingleStringValue("users", "currentjob", "user_id", profile.id);
 		if (!Settings.jobs.containsKey(jobname)) {
-			jobname = Settings.initialJobs.get(SRPG.generator.nextInt(Settings.initialJobs.size())).signature;
+			jobname = Settings.initialJobs.get(sRPG.generator.nextInt(Settings.initialJobs.size())).signature;
 		}
 		profile.currentJob = Settings.jobs.get(jobname);
 		// read locale
-		profile.locale = SRPG.database.getSingleStringValue("users", "locale", "user_id", profile.id);
+		profile.locale = sRPG.database.getSingleStringValue("users", "locale", "user_id", profile.id);
 		// change to default locale if the set locale is not available anymore
 		if (!Settings.localization.containsKey(profile.locale)) {
 			profile.locale = Settings.defaultLocale;
@@ -127,15 +127,15 @@ public class ProfileManager {
 		}
 		
 		// read hp
-		profile.hp = SRPG.database.getSingleIntValue("users", "hp", "user_id", profile.id);
-		profile.hp_max = 40;
+		profile.hp = sRPG.database.getSingleDoubleValue("users", "hp", "user_id", profile.id);
+		profile.hp_max = 40.0;
 		//Integer normalized = data.hp*20 / data.hp_max;
 		//player.setHealth(normalized == 0 && data.hp != 0 ? 1 : normalized);
 
 		// read job xp
 		ArrayList<String> jobs = new ArrayList<String>();
 		jobs.addAll(Settings.jobs.keySet());
-		ArrayList<Integer> xp = SRPG.database.getSingleIntRow("jobxp", jobs, "user_id", profile.id);
+		ArrayList<Integer> xp = sRPG.database.getSingleIntRow("jobxp", jobs, "user_id", profile.id);
 		profile.jobXP.clear();
 		profile.jobAvailability.clear();
 		profile.jobLevels.clear();
@@ -146,8 +146,8 @@ public class ProfileManager {
 				profile.checkLevelUp(job);
 			}
 		}
-		profile.charges = SRPG.database.getSingleIntValue("users", "charges", "user_id", profile.id);
-		profile.chargeProgress = SRPG.database.getSingleIntValue("users", "chargeprogress", "user_id", profile.id);
+		profile.charges = sRPG.database.getSingleIntValue("users", "charges", "user_id", profile.id);
+		profile.chargeProgress = sRPG.database.getSingleIntValue("users", "chargeprogress", "user_id", profile.id);
 		profile.suppressRecalculation = false;
 		profile.changeJob(profile.currentJob);
 		profile.suppressMessages = false;
@@ -157,16 +157,16 @@ public class ProfileManager {
 	public void enterIntoDatabase(Player player) { 
 		String name = player.getName();
 		ProfilePlayer profile = (ProfilePlayer)profiles.get(player);
-		SRPG.dout("trying to enter "+name+" into the database","db");
+		sRPG.dout("trying to enter "+name+" into the database","db");
 		HashMap<String,String> map = new HashMap<String, String>();
 		map.put("user", name);
 		map.put("hp", ""+player.getHealth());
 		map.put("locale", profile.locale);
-		SRPG.database.insertStringValues("users", map);
+		sRPG.database.insertStringValues("users", map);
 		
-		SRPG.dout("users table written, proceeding to fetch id","db");
-		profile.id = SRPG.database.getSingleIntValue("users", "user_id", "user", name);
-		SRPG.database.insertSingleIntValue("jobxp", "user_id", profile.id);
+		sRPG.dout("users table written, proceeding to fetch id","db");
+		profile.id = sRPG.database.getSingleIntValue("users", "user_id", "user", name);
+		sRPG.database.insertSingleIntValue("jobxp", "user_id", profile.id);
 	}
 	
 	// save all data
@@ -187,24 +187,24 @@ public class ProfileManager {
 		// write xp
 		if (partial.isEmpty() || partial.equalsIgnoreCase("xp")) {
 			//TODO: FIND NPE !!
-			SRPG.database.setSingleIntValue("jobxp", profile.currentJob.signature, profile.jobXP.get(profile.currentJob), "user_id", profile.id);
+			sRPG.database.setSingleIntValue("jobxp", profile.currentJob.signature, profile.jobXP.get(profile.currentJob), "user_id", profile.id);
 		}
 		// write job
 		if (partial.isEmpty() || partial.equalsIgnoreCase("job")) {
-			SRPG.database.setSingleStringValue("users", "currentjob", profile.currentJob.signature, "user_id", profile.id);
+			sRPG.database.setSingleStringValue("users", "currentjob", profile.currentJob.signature, "user_id", profile.id);
 		}
 		// write hp
 		if (partial.isEmpty() || partial.equalsIgnoreCase("hp")) {
-			SRPG.database.setSingleIntValue("users", "hp", profile.hp, "user_id", profile.id);
+			sRPG.database.setSingleDoubleValue("users", "hp", profile.hp, "user_id", profile.id);
 		}
 		// write locale
 		if (partial.isEmpty() || partial.equalsIgnoreCase("locale")) {
-			SRPG.database.setSingleStringValue("users", "locale", profile.locale, "user_id", profile.id);
+			sRPG.database.setSingleStringValue("users", "locale", profile.locale, "user_id", profile.id);
 		}
 		// write charge data
 		if (partial.isEmpty() || partial.equalsIgnoreCase("chargedata")) {
-			SRPG.database.setSingleIntValue("users", "charges", profile.charges, "user_id", profile.id);
-			SRPG.database.setSingleIntValue("users", "chargeprogress", profile.chargeProgress, "user_id", profile.id);
+			sRPG.database.setSingleIntValue("users", "charges", profile.charges, "user_id", profile.id);
+			sRPG.database.setSingleIntValue("users", "chargeprogress", profile.chargeProgress, "user_id", profile.id);
 		}
 	}
 	

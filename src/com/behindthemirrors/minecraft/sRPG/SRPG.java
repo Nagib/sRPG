@@ -9,8 +9,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.Event.Priority;
 
 import org.bukkit.plugin.Plugin;
 
@@ -29,7 +27,7 @@ import com.behindthemirrors.minecraft.sRPG.listeners.SpawnEventListener;
 // - add help and detailed information pages
 // 
 
-public class SRPG extends JavaPlugin {
+public final class sRPG extends JavaPlugin {
 	static final String LOG_PREFIX = "[sRPG] ";
 	static final String CHAT_PREFIX = "[sRPG] ";
 	static final String DEBUG_PREFIX = "[sDEBUG]";
@@ -80,23 +78,11 @@ public class SRPG extends JavaPlugin {
 		if (disable) {
 			pm.disablePlugin(this);
 		} else {
-			pm.registerEvent(Event.Type.ENTITY_DAMAGE, damageListener, Priority.Highest, this);
-			pm.registerEvent(Event.Type.ENTITY_REGAIN_HEALTH, damageListener, Priority.Highest, this);
-			pm.registerEvent(Event.Type.ENTITY_DEATH, damageListener, Priority.Monitor, this);
-			pm.registerEvent(Event.Type.CREATURE_SPAWN, spawnListener, Priority.Monitor, this);
-			pm.registerEvent(Event.Type.PLAYER_JOIN, playerListener, Priority.Monitor, this);
-			pm.registerEvent(Event.Type.PLAYER_QUIT, playerListener, Priority.Monitor, this);
-			pm.registerEvent(Event.Type.PLAYER_ITEM_HELD, playerListener, Priority.Monitor, this);
-			pm.registerEvent(Event.Type.PLAYER_PICKUP_ITEM, playerListener, Priority.Highest, this);
-			pm.registerEvent(Event.Type.PLAYER_MOVE, playerListener, Priority.Monitor, this);
-			pm.registerEvent(Event.Type.PLAYER_INTERACT, playerListener, Priority.Highest, this);
-			pm.registerEvent(Event.Type.PLAYER_INTERACT_ENTITY, playerListener, Priority.Highest, this);
-			pm.registerEvent(Event.Type.PLAYER_TOGGLE_SNEAK, playerListener, Priority.Monitor, this);
-			pm.registerEvent(Event.Type.PLAYER_RESPAWN, playerListener, Priority.Monitor, this);
-			pm.registerEvent(Event.Type.BLOCK_BREAK, blockListener, Priority.Highest, this);
-			pm.registerEvent(Event.Type.BLOCK_CANBUILD, blockListener, Priority.Highest, this);
-			pm.registerEvent(Event.Type.BLOCK_PLACE, blockListener, Priority.Highest, this);
-			
+                        pm.registerEvents(new DamageEventListener(), this);
+                        pm.registerEvents(new SpawnEventListener(), this);
+                        pm.registerEvents(new PlayerEventListener(), this);
+                        pm.registerEvents(new BlockEventListener(), this);
+                        
 			pdfFile = this.getDescription();
 			output(pdfFile.getName() + " v" + pdfFile.getVersion() + " has been enabled." );
 			database.updateDatabase(pdfFile.getVersion());

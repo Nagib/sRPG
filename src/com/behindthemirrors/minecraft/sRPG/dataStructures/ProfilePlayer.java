@@ -12,19 +12,19 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.getspout.spoutapi.SpoutManager;
-import org.getspout.spoutapi.gui.Color;
-import org.getspout.spoutapi.gui.GenericGradient;
-import org.getspout.spoutapi.gui.GenericLabel;
-import org.getspout.spoutapi.gui.GenericTexture;
-import org.getspout.spoutapi.gui.RenderPriority;
-import org.getspout.spoutapi.gui.WidgetAnchor;
+//import org.getspout.spoutapi.SpoutManager;
+//import org.getspout.spoutapi.gui.Color;
+//import org.getspout.spoutapi.gui.GenericGradient;
+//import org.getspout.spoutapi.gui.GenericLabel;
+//import org.getspout.spoutapi.gui.GenericTexture;
+//import org.getspout.spoutapi.gui.RenderPriority;
+//import org.getspout.spoutapi.gui.WidgetAnchor;
 
 import com.behindthemirrors.minecraft.sRPG.CombatInstance;
 import com.behindthemirrors.minecraft.sRPG.Messager;
 import com.behindthemirrors.minecraft.sRPG.MiscGeneric;
 import com.behindthemirrors.minecraft.sRPG.ResolverActive;
-import com.behindthemirrors.minecraft.sRPG.SRPG;
+import com.behindthemirrors.minecraft.sRPG.sRPG;
 import com.behindthemirrors.minecraft.sRPG.Settings;
 
 
@@ -52,8 +52,8 @@ public class ProfilePlayer extends ProfileNPC {
 	public Integer id = 0;
 	public Player player;
 	public String name;
-	public Integer hp;
-	public Integer hp_max;
+	public Double hp;
+	public Double hp_max;
 	public Integer charges;
 	public Integer chargeProgress;
 	
@@ -66,9 +66,9 @@ public class ProfilePlayer extends ProfileNPC {
 	
 	public String locale;
 	
-	public GenericGradient xpbar;
-	public GenericLabel levelDisplay;
-	public ArrayList<GenericTexture> chargeDisplay;
+//	public GenericGradient xpbar;
+//	public GenericLabel levelDisplay;
+//	public ArrayList<GenericTexture> chargeDisplay;
 	
 	public void addXP(Integer amount) {
 		if (jobLevels.get(currentJob) >= currentJob.maximumLevel && !(amount < 0)) {
@@ -79,30 +79,30 @@ public class ProfilePlayer extends ProfileNPC {
 		checkLevelUp(currentJob);
 		
 		// debug message
-		SRPG.dout("adding "+amount.toString()+" xp to player "+name,"player");
-		SRPG.profileManager.save(this,"xp");
+		sRPG.dout("adding "+amount.toString()+" xp to player "+name,"player");
+		sRPG.profileManager.save(this,"xp");
 	}
 	
-	public void setXPBar(double percentage) {
-		xpbar.setWidth((int)(126*percentage));
-		if (percentage >= 1.0) {
-			xpbar.setTopColor(new Color(0.85F,0.7F,0.0F,1.0F));
-			xpbar.setBottomColor(new Color(0.6F,0.4F,0.0F,1.0F));
-		} else {
-			xpbar.setTopColor(new Color(0.25F,0.4F,1.0F,1.0F));
-			xpbar.setBottomColor(new Color(0.15F,0.325F,0.4F,1.0F));
-		}
-		xpbar.setDirty(true);
-	}
-	
-	public void setLevelDisplay(int level) {
-		if (level >= currentJob.maximumLevel) {
-			levelDisplay.setText(ChatColor.GOLD+""+level);
-		} else {
-			levelDisplay.setText(""+level);
-		}
-		levelDisplay.setDirty(true);
-	}
+//	public void setXPBar(double percentage) {
+//		xpbar.setWidth((int)(126*percentage));
+//		if (percentage >= 1.0) {
+//			xpbar.setTopColor(new Color(0.85F,0.7F,0.0F,1.0F));
+//			xpbar.setBottomColor(new Color(0.6F,0.4F,0.0F,1.0F));
+//		} else {
+//			xpbar.setTopColor(new Color(0.25F,0.4F,1.0F,1.0F));
+//			xpbar.setBottomColor(new Color(0.15F,0.325F,0.4F,1.0F));
+//		}
+//		xpbar.setDirty(true);
+//	}
+//	
+//	public void setLevelDisplay(int level) {
+//		if (level >= currentJob.maximumLevel) {
+//			levelDisplay.setText(ChatColor.GOLD+""+level);
+//		} else {
+//			levelDisplay.setText(""+level);
+//		}
+//		levelDisplay.setDirty(true);
+//	}
 	
 	public boolean checkLevelUp(StructureJob job) {
 		Integer oldLevel = jobLevels.containsKey(job) ? jobLevels.get(job) : 0;
@@ -131,7 +131,7 @@ public class ProfilePlayer extends ProfileNPC {
 			if (!suppressMessages) {
 				Messager.sendMessage(player, "levelup",currentJob.signature);
 				if (oldLevel < currentLevel) {
-					SpoutManager.getSoundManager().playCustomSoundEffect(SRPG.plugin, SpoutManager.getPlayer(player), "http://www.behindthemirrors.com/files/minecraft/srpg/level.ogg", false);
+					// SpoutManager.getSoundManager().playCustomSoundEffect(sRPG.plugin, SpoutManager.getPlayer(player), "http://www.behindthemirrors.com/files/minecraft/srpg/level.ogg", false);
 				}
 			}
 			recalculate();
@@ -139,8 +139,8 @@ public class ProfilePlayer extends ProfileNPC {
 		// set xp bar
 		double toLast = currentJob.xpToNextLevel(currentLevel-1);
 		double toNext = currentJob.xpToNextLevel(currentLevel) - toLast;
-		setXPBar(toNext <= 0 || currentLevel >= job.maximumLevel ? 1.0 : (amount-toLast) / toNext);
-		setLevelDisplay(currentLevel);
+//		setXPBar(toNext <= 0 || currentLevel >= job.maximumLevel ? 1.0 : (amount-toLast) / toNext);
+//		setLevelDisplay(currentLevel);
 		// check for unlocked jobs
 		for (StructureJob otherJob : Settings.jobs.values()) {
 			boolean previous = jobAvailability.containsKey(otherJob) ? jobAvailability.get(otherJob) : false;
@@ -163,13 +163,13 @@ public class ProfilePlayer extends ProfileNPC {
 			if (charges < chargeMax) {
 				chargeProgress -= ticksPerCharge;
 				charges++;
-				updateChargeDisplay();
+//				updateChargeDisplay();
 				if (!suppressMessages) {
-					if (SpoutManager.getPlayer(player).isSpoutCraftEnabled()) {
-						SpoutManager.getSoundManager().playCustomSoundEffect(SRPG.plugin, SpoutManager.getPlayer(player), "http://www.behindthemirrors.com/files/minecraft/srpg/charge.ogg", false);
-					} else {
+					//if (SpoutManager.getPlayer(player).isSpoutCraftEnabled()) {
+					//	SpoutManager.getSoundManager().playCustomSoundEffect(sRPG.plugin, SpoutManager.getPlayer(player), "http://www.behindthemirrors.com/files/minecraft/srpg/charge.ogg", false);
+					//} else {
 						Messager.sendMessage(player, "charge-acquired");
-					}
+					//}
 					
 				}
 			} else {
@@ -178,18 +178,18 @@ public class ProfilePlayer extends ProfileNPC {
 		}
 	}
 	
-	public void updateChargeDisplay() {
-		GenericTexture texture;
-		for (int i = 0;i<10;i++) {
-			texture = chargeDisplay.get(i);
-			if (i < charges) {
-				texture.setVisible(true);
-			} else {
-				texture.setVisible(false);
-			}
-			texture.setDirty(true);
-		}
-	}
+//	public void updateChargeDisplay() {
+//		GenericTexture texture;
+//		for (int i = 0;i<10;i++) {
+//			texture = chargeDisplay.get(i);
+//			if (i < charges) {
+//				texture.setVisible(true);
+//			} else {
+//				texture.setVisible(false);
+//			}
+//			texture.setDirty(true);
+//		}
+//	}
 	
 	public boolean cycleActive() {
 		if (!validActives.isEmpty()) {
@@ -202,24 +202,25 @@ public class ProfilePlayer extends ProfileNPC {
 				changed = false;
 			}
 			currentActive = validActives.get(index);
-			if (SpoutManager.getPlayer(player).isSpoutCraftEnabled()) {
-				String name = Messager.localizedActive(currentActive.signature, this)+MiscGeneric.potencyToRoman(actives.get(currentActive).potency);
-				if (name.length() >= 26) {
-					name = name.substring(0, 23) + "...";
-				}
-				String header = " ";
-				try {
-					header = Messager.parseMessage(player, "active-changed-header", "", false).get(0);
-				} catch (IndexOutOfBoundsException ex) {
-				}
-				Material displayMaterial = player.getItemInHand().getType();
-				if (displayMaterial == Material.AIR) {
-					displayMaterial = Material.STONE; // TODO: remove hackish fix
-				}
-				SpoutManager.getPlayer(player).sendNotification(header, name, displayMaterial);
-			} else {
+                        
+//			if (SpoutManager.getPlayer(player).isSpoutCraftEnabled()) {
+//				String name = Messager.localizedActive(currentActive.signature, this)+MiscGeneric.potencyToRoman(actives.get(currentActive).potency);
+//				if (name.length() >= 26) {
+//					name = name.substring(0, 23) + "...";
+//				}
+//				String header = " ";
+//				try {
+//					header = Messager.parseMessage(player, "active-changed-header", "", false).get(0);
+//				} catch (IndexOutOfBoundsException ex) {
+//				}
+//				Material displayMaterial = player.getItemInHand().getType();
+//				if (displayMaterial == Material.AIR) {
+//					displayMaterial = Material.STONE; // TODO: remove hackish fix
+//				}
+//				SpoutManager.getPlayer(player).sendNotification(header, name, displayMaterial);
+//			} else {
 				Messager.chargeDisplay(player, changed);
-			}
+//			}
 			return true;
 		}
 		return false;
@@ -281,10 +282,10 @@ public class ProfilePlayer extends ProfileNPC {
 				currentActive.validVs(targetBlock.getType()) &&
 				(System.currentTimeMillis() - abilityReadiedTimeStamp) < 1500 && 
 				charges >= currentActive.cost) {
-			SRPG.dout(actives.toString());
+			sRPG.dout(actives.toString());
 			ArgumentsActive arguments = new ArgumentsActive(currentActive, this, actives.get(currentActive));
 			arguments.targetBlock = targetBlock;
-			arguments.target = SRPG.profileManager.get(target);
+			arguments.target = sRPG.profileManager.get(target);
 			ResolverActive.resolve(arguments);
 			Messager.announce(currentActive, this); 
 			result = true;
@@ -294,22 +295,22 @@ public class ProfilePlayer extends ProfileNPC {
 		if (!currentActive.combat) {
 			prepared = false;
 		}
-		updateChargeDisplay();
+//		updateChargeDisplay();
 		return result;
 	}
 
 	public void changeJob(StructureJob job) {
-		SRPG.dout("checking prerequisites for player "+name,"player");
+		sRPG.dout("checking prerequisites for player "+name,"player");
 		if (job.prerequisitesMet(this)) {
 			if (!jobLevels.containsKey(job)) {
 				jobLevels.put(job,1);
 			}
-			SRPG.dout("changing job to "+job.name,"player");
+			sRPG.dout("changing job to "+job.name,"player");
 			currentJob = job;
 			if (!checkLevelUp(job)) {
 				recalculate();
 			}
-			SRPG.profileManager.save(this,"job");
+			sRPG.profileManager.save(this,"job");
 		}
 	}
 	
@@ -411,64 +412,64 @@ public class ProfilePlayer extends ProfileNPC {
 		}
 		recalculateActives();
 		
-		SRPG.dout("recalculated stats: "+stats.toString(),"player");
+		sRPG.dout("recalculated stats: "+stats.toString(),"player");
 	}
 	
-	public void initializeHUD() {
-		//background
-		GenericGradient gradient = new GenericGradient();
-		gradient.setTopColor(new Color(0.11F,0.08F,0.066F,1.0F));
-		gradient.setBottomColor(new Color(0.11F,0.08F,0.066F,1.0F));
-		gradient.setWidth(126).setHeight(2);
-		gradient.setX(150).setY(5); // middle x : 213
-		gradient.setPriority(RenderPriority.Highest);
-		SpoutManager.getPlayer(player).getMainScreen().attachWidget(SRPG.plugin,gradient);
-		//fill
-		gradient = new GenericGradient();
-		gradient.setWidth(0).setHeight(2);
-		gradient.setX(150).setY(5); // middle x : 213
-		gradient.setPriority(RenderPriority.High);
-		SpoutManager.getPlayer(player).getMainScreen().attachWidget(SRPG.plugin,gradient);
-		xpbar = gradient;
-		//border
-		GenericTexture texture = new GenericTexture();
-		texture.setUrl("http://www.behindthemirrors.com/files/minecraft/srpg/xpbar_background.png");
-		texture.setWidth(128).setHeight(8);
-		texture.setX(149).setY(4); // middle x : 213
-		SpoutManager.getPlayer(player).getMainScreen().attachWidget(SRPG.plugin,texture);
-		//level background/border
-		texture = new GenericTexture();
-		texture.setUrl("http://www.behindthemirrors.com/files/minecraft/srpg/level_display.png");
-		texture.setWidth(16).setHeight(16);
-		texture.setX(205).setY(-1); // middle x : 213
-		texture.setPriority(RenderPriority.Low);
-		SpoutManager.getPlayer(player).getMainScreen().attachWidget(SRPG.plugin,texture);
-		// level text
-		GenericLabel label = new GenericLabel();
-		label.setAlign(WidgetAnchor.CENTER_CENTER);
-		label.setX(213).setY(8);
-		label.setPriority(RenderPriority.Lowest);
-		SpoutManager.getPlayer(player).getMainScreen().attachWidget(SRPG.plugin,label);
-		levelDisplay = label;
-		// charges
-		chargeDisplay = new ArrayList<GenericTexture>();
-		for (int i=0;i<10;i++) {
-			// border/background
-			texture = new GenericTexture();
-			texture.setUrl("http://www.behindthemirrors.com/files/minecraft/srpg/charge_background.png");
-			texture.setWidth(8).setHeight(8);
-			texture.setX(170+i*7+(i>4?17:0)).setY(9); // middle x : 213
-			SpoutManager.getPlayer(player).getMainScreen().attachWidget(SRPG.plugin,texture);
-			// fill
-			texture = new GenericTexture();
-			texture.setUrl("http://www.behindthemirrors.com/files/minecraft/srpg/charge_fill.png");
-			texture.setWidth(8).setHeight(8);
-			texture.setX(170+i*7+(i>4?17:0)).setY(9); // middle x : 213
-			texture.setVisible(false);
-			texture.setPriority(RenderPriority.Low);
-			SpoutManager.getPlayer(player).getMainScreen().attachWidget(SRPG.plugin,texture);
-			chargeDisplay.add(texture);
-		}
-	}
+//	public void initializeHUD() {
+//		//background
+//		GenericGradient gradient = new GenericGradient();
+//		gradient.setTopColor(new Color(0.11F,0.08F,0.066F,1.0F));
+//		gradient.setBottomColor(new Color(0.11F,0.08F,0.066F,1.0F));
+//		gradient.setWidth(126).setHeight(2);
+//		gradient.setX(150).setY(5); // middle x : 213
+//		gradient.setPriority(RenderPriority.Highest);
+//		SpoutManager.getPlayer(player).getMainScreen().attachWidget(sRPG.plugin,gradient);
+//		//fill
+//		gradient = new GenericGradient();
+//		gradient.setWidth(0).setHeight(2);
+//		gradient.setX(150).setY(5); // middle x : 213
+//		gradient.setPriority(RenderPriority.High);
+//		SpoutManager.getPlayer(player).getMainScreen().attachWidget(sRPG.plugin,gradient);
+//		xpbar = gradient;
+//		//border
+//		GenericTexture texture = new GenericTexture();
+//		texture.setUrl("http://www.behindthemirrors.com/files/minecraft/srpg/xpbar_background.png");
+//		texture.setWidth(128).setHeight(8);
+//		texture.setX(149).setY(4); // middle x : 213
+//		SpoutManager.getPlayer(player).getMainScreen().attachWidget(sRPG.plugin,texture);
+//		//level background/border
+//		texture = new GenericTexture();
+//		texture.setUrl("http://www.behindthemirrors.com/files/minecraft/srpg/level_display.png");
+//		texture.setWidth(16).setHeight(16);
+//		texture.setX(205).setY(-1); // middle x : 213
+//		texture.setPriority(RenderPriority.Low);
+//		SpoutManager.getPlayer(player).getMainScreen().attachWidget(sRPG.plugin,texture);
+//		// level text
+//		GenericLabel label = new GenericLabel();
+//		label.setAlign(WidgetAnchor.CENTER_CENTER);
+//		label.setX(213).setY(8);
+//		label.setPriority(RenderPriority.Lowest);
+//		SpoutManager.getPlayer(player).getMainScreen().attachWidget(sRPG.plugin,label);
+//		levelDisplay = label;
+//		// charges
+//		chargeDisplay = new ArrayList<GenericTexture>();
+//		for (int i=0;i<10;i++) {
+//			// border/background
+//			texture = new GenericTexture();
+//			texture.setUrl("http://www.behindthemirrors.com/files/minecraft/srpg/charge_background.png");
+//			texture.setWidth(8).setHeight(8);
+//			texture.setX(170+i*7+(i>4?17:0)).setY(9); // middle x : 213
+//			SpoutManager.getPlayer(player).getMainScreen().attachWidget(sRPG.plugin,texture);
+//			// fill
+//			texture = new GenericTexture();
+//			texture.setUrl("http://www.behindthemirrors.com/files/minecraft/srpg/charge_fill.png");
+//			texture.setWidth(8).setHeight(8);
+//			texture.setX(170+i*7+(i>4?17:0)).setY(9); // middle x : 213
+//			texture.setVisible(false);
+//			texture.setPriority(RenderPriority.Low);
+//			SpoutManager.getPlayer(player).getMainScreen().attachWidget(sRPG.plugin,texture);
+//			chargeDisplay.add(texture);
+//		}
+//	}
 
 }

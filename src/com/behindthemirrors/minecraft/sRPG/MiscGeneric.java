@@ -37,7 +37,7 @@ public class MiscGeneric {
 	public static File createDefaultFile(File file, String description, String defaultFileName) {
 	    if (!file.exists()) {
 	    	new File(file.getParent()).mkdirs();
-	        InputStream input = SRPG.class.getResourceAsStream("/defaults/" + defaultFileName);
+	        InputStream input = sRPG.class.getResourceAsStream("/defaults/" + defaultFileName);
 	        if (input != null) {
 	            FileOutputStream output = null;
 	            try {
@@ -48,10 +48,10 @@ public class MiscGeneric {
 	                    output.write(buf, 0, length);
 	                }
 	                
-	                SRPG.output("Created " + description);
+	                sRPG.output("Created " + description);
 	            } catch (IOException e) {
 	                e.printStackTrace();
-	                SRPG.output("Error creating " + description);
+	                sRPG.output("Error creating " + description);
 	            } finally {
 	                try {
 	                    if (input != null)

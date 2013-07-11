@@ -35,7 +35,7 @@ public class CascadeQueue implements Runnable {
 					// send block destruction event
 					if (descriptor.cause != null) {
 						BlockBreakEvent event = new BlockBreakEvent(block, descriptor.cause.player);
-						SRPG.pm.callEvent(event);
+						sRPG.pm.callEvent(event);
 						canceled = event.isCancelled();
 					} 
 					// drop items
@@ -47,7 +47,7 @@ public class CascadeQueue implements Runnable {
 					}
 				} else if (block.getType() == Material.AIR && descriptor.targetState.getType() != Material.AIR) {
 					BlockCanBuildEvent event = new BlockCanBuildEvent(block,descriptor.targetState.getTypeId(),true);
-					SRPG.pm.callEvent(event);
+					sRPG.pm.callEvent(event);
 					canceled = !event.isBuildable();
 				}
 				// change block

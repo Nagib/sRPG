@@ -7,7 +7,7 @@ import java.util.HashMap;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.util.config.ConfigurationNode;
+import org.bukkit.configuration.ConfigurationSection;
 
 public class MiscGeometric {
 
@@ -42,9 +42,9 @@ public class MiscGeometric {
 		directionToFacing.put("down", BlockFace.DOWN); // -y
 	}
 	
-	public static Block offset(Location location, Block block, ConfigurationNode node) {
+	public static Block offset(Location location, Block block, ConfigurationSection node) {
 		try {
-			ArrayList<Integer> offset = (ArrayList<Integer>)node.getIntList("offset", new ArrayList<Integer>());
+			ArrayList<Integer> offset = (ArrayList<Integer>)node.getIntegerList("offset");
 			if (location != null && node.getBoolean("relative", false)) {
 				offset = relativeOffset(offset, getFacing(location));
 			}

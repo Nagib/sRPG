@@ -1,7 +1,7 @@
 package com.behindthemirrors.minecraft.sRPG;
 
 import org.bukkit.block.Block;
-import org.bukkit.util.config.ConfigurationNode;
+import org.bukkit.configuration.ConfigurationSection;
 
 import com.behindthemirrors.minecraft.sRPG.dataStructures.ArgumentsActive;
 import com.behindthemirrors.minecraft.sRPG.dataStructures.ScheduledEffect;
@@ -11,11 +11,11 @@ public class ResolverActive {
 	public static void resolve(ArgumentsActive arguments) {
 		if (arguments.active != null) {
 			for (String effect : arguments.active.effects.keySet()) {
-				ConfigurationNode node = arguments.active.effects.get(effect);
+				ConfigurationSection node = arguments.active.effects.get(effect);
 
 				int delay = node.getInt("delay", 0);
 				if (delay > 0) {
-					SRPG.cascadeQueueScheduler.scheduleEffect(new ScheduledEffect(delay, effect, node, arguments));
+					sRPG.cascadeQueueScheduler.scheduleEffect(new ScheduledEffect(delay, effect, node, arguments));
 				} else {
 					resolveActiveEffect(effect, node, arguments);
 				}
@@ -23,7 +23,7 @@ public class ResolverActive {
 		}
 	}
 	
-	public static void resolveActiveEffect(String effect, ConfigurationNode node, ArgumentsActive arguments) {
+	public static void resolveActiveEffect(String effect, ConfigurationSection node, ArgumentsActive arguments) {
 		// TODO: maybe add a unified method of choosing which entity the effect is relative to, and if the direction is calculated at the moment of the effect cast, or at the moment of execution
 		Block targetBlock = MiscGeometric.offset(arguments.source.entity.getLocation(), arguments.targetBlock, node);
 		if (effect.startsWith("apply-buff")) {

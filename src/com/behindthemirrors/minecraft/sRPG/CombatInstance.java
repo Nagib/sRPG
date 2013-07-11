@@ -81,8 +81,8 @@ public class CombatInstance {
 			attackerHandItem = Material.BOW;
 		}
 		
-		SRPG.dout("attack launched with "+attackerHandItem+" versus "+defenderHandItem,"combat");
-		SRPG.dout("backstab = "+backstab+ " highground = "+(highground == null?"nobody":(highground == attacker? "attacker" : "defender")),"combat");
+		sRPG.dout("attack launched with "+attackerHandItem+" versus "+defenderHandItem,"combat");
+		sRPG.dout("backstab = "+backstab+ " highground = "+(highground == null?"nobody":(highground == attacker? "attacker" : "defender")),"combat");
 		
 		evadeChance += defender.getStat("evade-chance", defenderHandItem, attackerHandItem) + attacker.getStat("target-evade-chance", attackerHandItem, defenderHandItem);
 		parryChance += defender.getStat("parry-chance", defenderHandItem, attackerHandItem) + attacker.getStat("target-parry-chance", attackerHandItem, defenderHandItem);
@@ -100,7 +100,7 @@ public class CombatInstance {
 					charge = bowcharge;
 				} else {
 					// TODO: think of a way to implement damage ranges for other tools
-					charge = SRPG.generator.nextDouble();
+					charge = sRPG.generator.nextDouble();
 				}
 				damagerange = damageTableTools.get(toolName+"-range");
 			} else {
@@ -122,12 +122,12 @@ public class CombatInstance {
 			}
 		}
 		
-		SRPG.dout("basedamage: "+basedamage,"combat");
-		SRPG.dout("damagerange: "+damagerange,"combat");
+		sRPG.dout("basedamage: "+basedamage,"combat");
+		sRPG.dout("damagerange: "+damagerange,"combat");
 		basedamage += attacker.getStat("damage-modifier", attackerHandItem, defenderHandItem) + attacker.getStat("target-damage-modifier", attackerHandItem, defenderHandItem);
 		damagerange += attacker.getStat("max-damage-modifier", attackerHandItem, defenderHandItem) + attacker.getStat("target-max-damage-modifier", attackerHandItem, defenderHandItem);
-		SRPG.dout("basedamage2: "+basedamage,"combat");
-		SRPG.dout("damagerange2: "+damagerange,"combat");
+		sRPG.dout("basedamage2: "+basedamage,"combat");
+		sRPG.dout("damagerange2: "+damagerange,"combat");
 		ResolverPassive.resolveCombatBoosts(this);
 		if (attacker instanceof ProfilePlayer) {
 			((ProfilePlayer)attacker).activate(this, defenderHandItem);
@@ -137,28 +137,28 @@ public class CombatInstance {
 			basedamage += damagerange;
 			damagerange = 0;
 		}
-		SRPG.dout("basedamage3: "+basedamage,"combat");
-		SRPG.dout("damagerange3: "+damagerange,"combat");
-		SRPG.dout("charge: "+charge,"combat");
+		sRPG.dout("basedamage3: "+basedamage,"combat");
+		sRPG.dout("damagerange3: "+damagerange,"combat");
+		sRPG.dout("charge: "+charge,"combat");
 		double damage = basedamage + charge * damagerange;
-		SRPG.dout("damage: "+damage,"combat");
+		sRPG.dout("damage: "+damage,"combat");
 		// apply critical hit
-		if (SRPG.generator.nextDouble() <= critChance) {
+		if (sRPG.generator.nextDouble() <= critChance) {
 			crit = true;
 		}
 		// apply miss
-		if (SRPG.generator.nextDouble() <= missChance) {
+		if (sRPG.generator.nextDouble() <= missChance) {
 			miss = true;
 		}
-		if (SRPG.generator.nextDouble() <= evadeChance) {
+		if (sRPG.generator.nextDouble() <= evadeChance) {
 			evade = true;
 		}
-		if (SRPG.generator.nextDouble() <= parryChance) {
+		if (sRPG.generator.nextDouble() <= parryChance) {
 			parry = true;
 		}
 		
-		SRPG.dout("triggering resolver","combat");
-		SRPG.dout(attacker.passives.toString(),"combat");
+		sRPG.dout("triggering resolver","combat");
+		sRPG.dout(attacker.passives.toString(),"combat");
 		
 		ResolverPassive.resolve(this);
 		
@@ -198,19 +198,19 @@ public class CombatInstance {
 		
 		damage *= factor <= 1.0 ? factor : 1.0;
 		
-		SRPG.dout("basedamage: "+damage,"combat");
+		sRPG.dout("basedamage: "+damage,"combat");
 		if (crit && damage > 0) {
 			Messager.sendMessage(attacker, "crit-attacker");
 			Messager.sendMessage(defender, "crit-defender");
 			damage *= critMultiplier;
-			SRPG.dout("critdamage: "+damage,"combat");
+			sRPG.dout("critdamage: "+damage,"combat");
 		}
 		
-		SRPG.dout("combat damage: "+damage,"combat");
+		sRPG.dout("combat damage: "+damage,"combat");
 		
 		damage *= MiscBukkit.getArmorFactor(defender);
 		
-		SRPG.dout("combat damage after armor mitigation: "+damage,"combat");
+		sRPG.dout("combat damage after armor mitigation: "+damage,"combat");
 		
 		if (damage > 0 && attacker instanceof ProfilePlayer) {
 			((ProfilePlayer)attacker).addChargeTicks(Settings.advanced.getInt("settings.charges.ticks.combat-hit", 0));

@@ -12,8 +12,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.util.config.ConfigurationNode;
-import org.getspout.spoutapi.SpoutManager;
+import org.bukkit.configuration.ConfigurationSection;
+//import org.getspout.spoutapi.SpoutManager;
 
 import com.behindthemirrors.minecraft.sRPG.dataStructures.ProfileNPC;
 import com.behindthemirrors.minecraft.sRPG.dataStructures.ProfilePlayer;
@@ -92,7 +92,7 @@ public class Messager {
 	}
 	
 	public static void chargeDisplay(Player player, boolean changed) {
-		ProfilePlayer profile = SRPG.profileManager.get(player);
+		ProfilePlayer profile = sRPG.profileManager.get(player);
 		Integer charges = profile.charges;
 		Integer cost = profile.currentActive.cost;
 		// check if the tool has an active ability
@@ -138,12 +138,12 @@ public class Messager {
 	
 	public static void notify(ProfilePlayer profile, String message, String context, Material material) {
 		Player player = ((ProfilePlayer)profile).player;
-		ArrayList<String> notificationList = (ArrayList<String>)Settings.localization.get(profile.locale).getStringList("notifications."+message,new ArrayList<String>());
+		ArrayList<String> notificationList = (ArrayList<String>)Settings.localization.get(profile.locale).getStringList("notifications."+message);
 		if (notificationList.isEmpty()) {
 			notificationList.add(Settings.localization.get(profile.locale).getString("notifications."+message,"Error in localization file, contact your admin about notification '"+message+"'"));
 		}
 		// TODO: change to properly use both parts of the notification
-		SpoutManager.getPlayer(player).sendNotification(parseLine(profile,notificationList.get(SRPG.generator.nextInt(notificationList.size())),context), context, material);
+		// SpoutManager.getPlayer(player).sendNotification(parseLine(profile,notificationList.get(sRPG.generator.nextInt(notificationList.size())),context), context, material);
 	}
 	
 	public static ArrayList<String> documentPassive(ProfilePlayer profile, StructurePassive passive) {
@@ -152,8 +152,8 @@ public class Messager {
 		if (passive.description != null && !passive.description.isEmpty()) {
 			lines.add(parseLine(profile,passive.description,passive.signature));
 		} else {
-			for (Entry<String,ConfigurationNode> entry : passive.effects.entrySet()) {
-				ConfigurationNode node = entry.getValue();
+			for (Entry<String, ConfigurationSection> entry : passive.effects.entrySet()) {
+				ConfigurationSection node = entry.getValue();
 				if (!node.getBoolean("documented", true)) {
 					continue;
 				}
@@ -163,8 +163,8 @@ public class Messager {
 		return lines;
 	}
 	
-	public static ArrayList<String> documentEffect(ProfilePlayer profile, String name, ConfigurationNode node) {
-		SRPG.dout("getting documentation for effect: "+name);
+	public static ArrayList<String> documentEffect(ProfilePlayer profile, String name, ConfigurationSection node) {
+		sRPG.dout("getting documentation for effect: "+name);
 		ArrayList<String> description = new ArrayList<String>();
 		if (name.startsWith("boost")) {
 			String stat = node.getString("name");
@@ -177,7 +177,7 @@ public class Messager {
 		
 		if (!description.isEmpty()) {
 			for (String string : new String[] {"tools","versus"}) {
-				List<String> tools = node.getStringList(string,new ArrayList<String>());
+				List<String> tools = node.getStringList(string);
 				ArrayList<String> names = new ArrayList<String>();
 				for (String material : tools) {
 					String tool = "";
@@ -233,14 +233,14 @@ public class Messager {
 	
 	public static ArrayList<String> parseMessage(Player player, String message, String context, boolean columns) {
 		
-		ProfilePlayer profile = SRPG.profileManager.get(player);
-		ArrayList<String> messageList = (ArrayList<String>)Settings.localization.get(SRPG.profileManager.get(player).locale).getStringList("messages."+message,new ArrayList<String>());
+		ProfilePlayer profile = sRPG.profileManager.get(player);
+		ArrayList<String> messageList = (ArrayList<String>)Settings.localization.get(sRPG.profileManager.get(player).locale).getStringList("messages."+message);
 		if (messageList.isEmpty()) {
-			messageList.add(Settings.localization.get(SRPG.profileManager.get(player).locale).getString("messages."+message,"Error in localization file, contact your admin about message '"+message+"'"));
+			messageList.add(Settings.localization.get(sRPG.profileManager.get(player).locale).getString("messages."+message,"Error in localization file, contact your admin about message '"+message+"'"));
 		}
 		
-		if (Settings.localization.get(SRPG.profileManager.get(player).locale).getStringList("messages.randomize", (new ArrayList<String>())).contains(message)) {
-			String choice = messageList.get(SRPG.generator.nextInt(messageList.size()));
+		if (Settings.localization.get(sRPG.profileManager.get(player).locale).getStringList("messages.randomize").contains(message)) {
+			String choice = messageList.get(sRPG.generator.nextInt(messageList.size()));
 			messageList.clear();
 			messageList.add(choice);
 		}

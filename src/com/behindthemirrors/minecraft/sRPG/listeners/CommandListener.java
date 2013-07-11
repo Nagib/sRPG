@@ -19,7 +19,7 @@ import org.bukkit.inventory.ItemStack;
 import com.behindthemirrors.minecraft.sRPG.CombatInstance;
 import com.behindthemirrors.minecraft.sRPG.Messager;
 import com.behindthemirrors.minecraft.sRPG.MiscGeneric;
-import com.behindthemirrors.minecraft.sRPG.SRPG;
+import com.behindthemirrors.minecraft.sRPG.sRPG;
 import com.behindthemirrors.minecraft.sRPG.Settings;
 import com.behindthemirrors.minecraft.sRPG.dataStructures.EffectDescriptor;
 import com.behindthemirrors.minecraft.sRPG.dataStructures.ProfilePlayer;
@@ -33,7 +33,7 @@ public class CommandListener implements CommandExecutor {
 	public boolean onCommand(CommandSender sender, Command command, String alias, String[] args) {
 		if (sender instanceof Player) {
 			Player player = (Player)sender;
-			ProfilePlayer profile = SRPG.profileManager.get(player);
+			ProfilePlayer profile = sRPG.profileManager.get(player);
 			if (command.getName().equals("srpg")) {
 				if (args.length < 1) {
 					Messager.sendMessage(player, "welcome");
@@ -42,7 +42,7 @@ public class CommandListener implements CommandExecutor {
 				} else if (args[0].equalsIgnoreCase("locale")) {
 					if (args.length > 1 && Settings.localization.containsKey(args[1])) {
 						profile.locale = args[1];
-						SRPG.profileManager.save(profile, "locale");
+						sRPG.profileManager.save(profile, "locale");
 						Messager.sendMessage(player, "locale-changed");
 						return true;
 					}
@@ -76,7 +76,7 @@ public class CommandListener implements CommandExecutor {
 							if (job == profile.currentJob) {
 								Messager.sendMessage(player,"job-already-selected",job.signature);
 							} else if (profile.jobAvailability.get(job)) {
-								SRPG.profileManager.get(player).changeJob(job);
+								sRPG.profileManager.get(player).changeJob(job);
 								Messager.sendMessage(player,"job-changed",job.signature);
 							} else {
 								Messager.sendMessage(player,"job-prerequisite-missing",job.signature);
@@ -215,26 +215,26 @@ public class CommandListener implements CommandExecutor {
 			if (command.getName().equals("srpg")) {
 				// toggle debug messages
 				if (args.length == 1 && args[0].equalsIgnoreCase("debug")) {
-					SRPG.debug = !SRPG.debug;
-					SRPG.output("debug mode set to "+SRPG.debug);
+					sRPG.debug = !sRPG.debug;
+					sRPG.output("debug mode set to "+sRPG.debug);
 				} else if (args.length >= 2 && args[0].equalsIgnoreCase("debug")) {
 					// remove item stacks if something was incorrectly dropped
 					if (args[1].equalsIgnoreCase("removeitems")) {
-						for (Entity entity : SRPG.plugin.getServer().getWorlds().get(0).getEntities()) {
+						for (Entity entity : sRPG.plugin.getServer().getWorlds().get(0).getEntities()) {
 							if (entity instanceof Item) {
 								entity.remove();
 							}
 						}
-						SRPG.output("removed all items");
+						sRPG.output("removed all items");
 						return true;
 					} else if (args[1].equalsIgnoreCase("dbpurge")) {
-						ArrayList<String> columns = SRPG.database.getColumns("jobxp");
+						ArrayList<String> columns = sRPG.database.getColumns("jobxp");
 						if (args.length >= 3) {
 							if (!args[2].equalsIgnoreCase("user_id") && columns.contains(args[3]) && !Settings.jobs.containsKey(args[2])) {
 								columns.clear();
 								columns.add(args[2]);
 							} else {
-								SRPG.output("invalid column, either not present or protected");
+								sRPG.output("invalid column, either not present or protected");
 							}
 						} else {
 							Iterator<String> iterator = columns.iterator();
@@ -246,21 +246,21 @@ public class CommandListener implements CommandExecutor {
 							}
 						}
 						for (String column : columns) {
-							SRPG.output("purging xp for job "+column);
-							SRPG.database.update("UPDATE "+SRPG.database.tablePrefix+"jobxp SET "+column+" = 0;");
+							sRPG.output("purging xp for job "+column);
+							sRPG.database.update("UPDATE "+sRPG.database.tablePrefix+"jobxp SET "+column+" = 0;");
 						}
 						return true;
 					} else if (args[1].equalsIgnoreCase("spawninvincible")) {
 						SpawnEventListener.spawnInvincible = !SpawnEventListener.spawnInvincible;
-						SRPG.output("spawn invincibility set to "+(new Boolean(SpawnEventListener.spawnInvincible).toString()));
+						sRPG.output("spawn invincibility set to "+(new Boolean(SpawnEventListener.spawnInvincible).toString()));
 						return true;
 					} else {
-						if (!SRPG.debugmodes.contains(args[1])) {
-							SRPG.debugmodes.add(args[1]);
-							SRPG.output("added '"+args[1]+"' to debugmodes");
+						if (!sRPG.debugmodes.contains(args[1])) {
+							sRPG.debugmodes.add(args[1]);
+							sRPG.output("added '"+args[1]+"' to debugmodes");
 						} else {
-							SRPG.debugmodes.remove(args[1]);
-							SRPG.output("removed '"+args[1]+"' from debugmodes");
+							sRPG.debugmodes.remove(args[1]);
+							sRPG.output("removed '"+args[1]+"' from debugmodes");
 						}
 						return true;
 					}
@@ -270,49 +270,49 @@ public class CommandListener implements CommandExecutor {
 						Iterator<Map.Entry<String,Integer>> pairs = CombatInstance.damageTableTools.entrySet().iterator();
 						while (pairs.hasNext()) {
 							Map.Entry<String,Integer>pair = pairs.next();
-							SRPG.dout(pair.getKey()+": "+pair.getValue());
+							sRPG.dout(pair.getKey()+": "+pair.getValue());
 						}
 						return true;
 					} else if (args[1].equalsIgnoreCase("inventory") && args.length >= 3) {
-						ProfilePlayer profile = SRPG.profileManager.get(args[2]);
+						ProfilePlayer profile = sRPG.profileManager.get(args[2]);
 						if (profile != null) {
 							for (int i = 0;i<40;i++) {
 								try {
 									ItemStack item = profile.player.getInventory().getItem(i);
-									SRPG.dout(i+": "+item.getAmount()+" x "+item.getType().toString());
+									sRPG.dout(i+": "+item.getAmount()+" x "+item.getType().toString());
 								} catch (ArrayIndexOutOfBoundsException ex) {
-									SRPG.dout(i+": no valid slot");
+									sRPG.dout(i+": no valid slot");
 								}
 							}
 						} else {
-							SRPG.dout("No player by that name");
+							sRPG.dout("No player by that name");
 						}
 						return true;
 					}
 					
-				} else if (args.length >= 2 && SRPG.profileManager.has(args[1])) {
-					ProfilePlayer profile = SRPG.profileManager.get(args[1]);
+				} else if (args.length >= 2 && sRPG.profileManager.has(args[1])) {
+					ProfilePlayer profile = sRPG.profileManager.get(args[1]);
 					
 					if (Settings.worldBlacklist.contains(profile.player.getWorld())) {
-						SRPG.output("the targeted player is in a world that is set as disabled");
+						sRPG.output("the targeted player is in a world that is set as disabled");
 					} else if (args[0].endsWith("charge")) {
 						if (args[0].startsWith("un")) {
 							profile.charges = 0;
 						} else {
 							profile.charges = 11;
 						}
-						profile.updateChargeDisplay();
-						SRPG.profileManager.save(profile, "chargedata");
-						SRPG.output("gave player "+args[1]+" maximum charges");
+//						profile.updateChargeDisplay();
+						sRPG.profileManager.save(profile, "chargedata");
+						sRPG.output("gave player "+args[1]+" maximum charges");
 					} else if (args[0].equalsIgnoreCase("enrage")) {
 						StructurePassive buff = Settings.passives.get("rage");
 						profile.addEffect(buff, new EffectDescriptor(10));
-						SRPG.output("enraged player "+args[1]);
+						sRPG.output("enraged player "+args[1]);
 						Messager.sendMessage(profile, "acquired-buff",buff.signature);
 					} else if (args[0].equalsIgnoreCase("protect")) {
 						StructurePassive buff = Settings.passives.get("invincibility");
 						profile.addEffect(buff, new EffectDescriptor(10));
-						SRPG.output("protected player "+args[1]);
+						sRPG.output("protected player "+args[1]);
 						Messager.sendMessage(profile, "acquired-buff",buff.signature);
 					} else if (args[0].equalsIgnoreCase("poison")) {
 						Integer potency;
@@ -328,32 +328,32 @@ public class CommandListener implements CommandExecutor {
 						StructurePassive buff = Settings.passives.get(potency == 0 ? "weakpoison" : "poison");
 						profile.addEffect(buff, descriptor);
 						Messager.sendMessage(profile, "acquired-buff",buff.signature);
-						SRPG.output("poisoned player "+args[1]);
+						sRPG.output("poisoned player "+args[1]);
 					} else if (args[0].equalsIgnoreCase("xp") && args.length >= 3) {
 						Integer amount;
 						try {
 							amount = Integer.parseInt(args[2]);
 						} catch (NumberFormatException e) {
-							SRPG.output("Not a valid number");
+							sRPG.output("Not a valid number");
 							return false;
 						}
 						
 						profile.addXP(amount);
-						SRPG.profileManager.save(profile, "xp");
-						SRPG.output("gave "+amount.toString()+" xp to player "+args[1]);
+						sRPG.profileManager.save(profile, "xp");
+						sRPG.output("gave "+amount.toString()+" xp to player "+args[1]);
 						return true;
 					} else if (args[0].equalsIgnoreCase("setboost") && args.length >= 4) {
 						Double value;
 						try {
 							value = Double.parseDouble(args[3]);
 						} catch (NumberFormatException e) {
-							SRPG.output("Not a valid number");
+							sRPG.output("Not a valid number");
 							return false;
 						}
 						
 						profile.stats.get(0).get(null).get(null).put(args[2], value);
-						SRPG.output("Set boost "+args[2]+" to "+value);
-						SRPG.output(profile.stats.toString());
+						sRPG.output("Set boost "+args[2]+" to "+value);
+						sRPG.output(profile.stats.toString());
 						return true;
 					} else {
 						return false;
@@ -367,8 +367,8 @@ public class CommandListener implements CommandExecutor {
 		if (args.length >= 1) {
 			if (args[0].equalsIgnoreCase("reload")) {
 				if (!(sender instanceof Player) || ((sender instanceof Player) && ((Player)sender).hasPermission("srpg.reload"))) {
-					SRPG.settings.load();
-					SRPG.output("Reloaded configuration");
+					sRPG.settings.load();
+					sRPG.output("Reloaded configuration");
 					return true;
 				}
 			}

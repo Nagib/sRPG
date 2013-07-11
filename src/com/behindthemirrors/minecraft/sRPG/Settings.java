@@ -4,8 +4,10 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.util.config.Configuration;
-import org.bukkit.util.config.ConfigurationNode;
+
+import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.behindthemirrors.minecraft.sRPG.dataStructures.ProfilePlayer;
 import com.behindthemirrors.minecraft.sRPG.dataStructures.StructureActive;
@@ -22,6 +24,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.List;
 
 public class Settings {
 	
@@ -34,7 +37,7 @@ public class Settings {
 	public static Configuration config;
 	public static Configuration advanced;
 	public static Configuration jobsettings;
-	
+        	
 	public static HashMap<String,StructureActive> actives;
 	public static HashMap<String,StructurePassive> passives;
 	public static HashMap<String,StructureJob> jobs;
@@ -85,13 +88,15 @@ public class Settings {
 
 	Configuration openConfig(File folder, String name, String description, String defaultFileName) {
 		File file = MiscGeneric.createDefaultFile(new File(folder, name+".yml"),description,defaultFileName+".yml");
-		if (file.exists()){
-			Configuration configuration = new Configuration(file);
+                
+		if (file.exists()) {
+			Configuration configuration = YamlConfiguration.loadConfiguration(file);
+                        
 			// TODO: add try/catch for .yml parsing errors
-			configuration.load();
+			// configuration.setDefaults(config);
 			return configuration;
 		} else {
-			SRPG.output("Error loading "+description+" ("+name+".yml)");
+			sRPG.output("Error loading "+description+" ("+name+".yml)");
 			return null;
 		}
 	}
@@ -106,21 +111,20 @@ public class Settings {
 			disable = true;
 		} else {
 			// default debug modes
-			SRPG.debugmodes = (ArrayList<String>) config.getStringList("debugmodes", new ArrayList<String>());
+			sRPG.debugmodes = (ArrayList<String>) config.getStringList("debugmodes");
 			
-			ConfigurationNode node;
 			// read world data
-			SRPG.output("loading world data");
+			sRPG.output("loading world data");
 			worldBlacklist.clear();
-			for (String worldname : config.getStringList("settings.disabled-worlds", new ArrayList<String>())) {
-				World world = SRPG.plugin.getServer().getWorld(worldname);
+			for (String worldname : config.getStringList("settings.disabled-worlds")) {
+				World world = sRPG.plugin.getServer().getWorld(worldname);
 				if (world != null) {
 					worldBlacklist.add(world);
 				}
 			}
 			
 			// read locale data
-			ArrayList<String> availableLocales = (ArrayList<String>)config.getStringList("settings.locales.available",new ArrayList<String>());
+			ArrayList<String> availableLocales = (ArrayList<String>)config.getStringList("settings.locales.available");
 			defaultLocale = config.getString("settings.locales.default");
 			if (!availableLocales.contains(defaultLocale)) {
 				availableLocales.add(defaultLocale);
@@ -145,7 +149,7 @@ public class Settings {
 				File file = new File(new File(dataFolder,"locales"),locale+".yml");
 				// plugin default locale
 				if (!file.exists()){
-					SRPG.output("Error loading locale '"+locale+"', initializing from EN");
+					sRPG.output("Error loading locale '"+locale+"', initializing from EN");
 					// create copy of EN for specified locale if no file is present
 					file = MiscGeneric.createDefaultFile(new File(new File(dataFolder,"locales"),locale+".yml"), "'"+locale+"' locale settings", "locale_EN.yml");
 				}
@@ -153,26 +157,30 @@ public class Settings {
 				if (!file.exists()) {
 					disable = true;
 				} else {
-					localization.put(locale,new Configuration(file));
+					localization.put(locale, YamlConfiguration.loadConfiguration(file));
 					// TODO: add try/catch for .yml parsing errors
-					localization.get(locale).load(); 
-					
+					//localization.get(locale).load(); 
+					                                            
+                                        ConfigurationSection jobsSection = localization.get(locale).getConfigurationSection("jobs");
+                                        ConfigurationSection passivesSection = localization.get(locale).getConfigurationSection("passives");
+                                        ConfigurationSection activesSection = localization.get(locale).getConfigurationSection("actives");
+                                        
 					// update skill aliases
 					JOB_ALIASES.put(locale,new HashMap<String,String>());
-					if (localization.get(locale).getKeys("jobs") != null) {
-						for (String name : localization.get(locale).getKeys("jobs")) {
+					if (jobsSection != null) {
+						for (String name : jobsSection.getKeys(true)) {
 							JOB_ALIASES.get(locale).put(localization.get(locale).getString("jobs."+name).toLowerCase(),name);
 						}
 					}
 					PASSIVE_ALIASES.put(locale,new HashMap<String,String>());
-					if (localization.get(locale).getKeys("passives") != null) {
-						for (String name : localization.get(locale).getKeys("passives")) {
+					if (passivesSection != null) {
+						for (String name : passivesSection.getKeys(true)) {
 							PASSIVE_ALIASES.get(locale).put(localization.get(locale).getString("passives."+name).toLowerCase(),name);
 						}
 					}
 					ACTIVE_ALIASES.put(locale,new HashMap<String,String>());
-					if (localization.get(locale).getKeys("actives") != null) {
-						for (String name : localization.get(locale).getKeys("actives")) {
+					if (activesSection != null) {
+						for (String name : activesSection.getKeys(true)) {
 							ACTIVE_ALIASES.get(locale).put(localization.get(locale).getString("actives."+name).toLowerCase(),name);
 						}
 					}
@@ -180,21 +188,21 @@ public class Settings {
 			}
 		
 			// update player locales if set locales are not available anymore
-			for (LivingEntity entity : SRPG.profileManager.profiles.keySet()) {
+			for (LivingEntity entity : sRPG.profileManager.profiles.keySet()) {
 				if (!(entity instanceof Player)) {
 					continue;
 				}
 				Player player = (Player)entity;
-				ProfilePlayer profile = SRPG.profileManager.get(player);
+				ProfilePlayer profile = sRPG.profileManager.get(player);
 				if (!Settings.localization.containsKey(profile.locale)) {
 					profile.locale = defaultLocale;
-					SRPG.profileManager.save(player,"locale");
-					SRPG.output("changed locale for player "+profile.name+" to default");
+					sRPG.profileManager.save(player,"locale");
+					sRPG.output("changed locale for player "+profile.name+" to default");
 				}
 			}
 			
 			// read config data
-			node = config.getNode("mySQL");
+                        ConfigurationSection node = config.getConfigurationSection("mySQL");
 			mySQLenabled = node.getBoolean("enabled", false);
 			Database db = new Database();
 			if (mySQLenabled) {
@@ -205,7 +213,7 @@ public class Settings {
 				db.pass = node.getString("dbPass");
 			}
 			db.tablePrefix = node.getString("table_prefix");
-			SRPG.database = db;
+			sRPG.database = db;
 			
 			// read ability settings
 			ProfilePlayer.chargeMax = 10; //TODO: make configurable (needs integration with spout GUI)
@@ -215,7 +223,7 @@ public class Settings {
 			difficulty = config.getString("settings.combat.difficulty");
 			File file = new File(new File(dataFolder,"difficulties"),difficulty+".yml");
 			if (!file.exists()){
-				SRPG.output("Error loading settings for difficulty '"+difficulty+"', initializing from default");
+				sRPG.output("Error loading settings for difficulty '"+difficulty+"', initializing from default");
 				// create copy of default settings for specified difficulty name if no file is present
 				file = MiscGeneric.createDefaultFile(new File(new File(dataFolder,"difficulties"),difficulty+".yml"), "'"+difficulty+"' difficulty settings", "difficulty_default.yml");
 			}
@@ -223,10 +231,11 @@ public class Settings {
 			if (!file.exists()) {
 				disable = true;
 			} else {
-				Configuration difficultyConfig = new Configuration(file);
+				Configuration difficultyConfig = YamlConfiguration.loadConfiguration(file);
 				// TODO: add try/catch for .yml parsing errors
-				difficultyConfig.load();
+				//difficultyConfig.load();
 				
+                                
 				ARMOR_FACTORS = new ArrayList<Double>();
 				for (String type : new String[] {"leather","chain","iron","diamond","gold"}) {
 					ARMOR_FACTORS.add(difficultyConfig.getDouble("settings.combat.armor-strength."+type, 1.0));
@@ -236,22 +245,26 @@ public class Settings {
 				SpawnEventListener.dangerousDepths = config.getBoolean("settings.combat.dangerous-depths", false);
 				
 				SpawnEventListener.depthTiers = new ArrayList<int[]>();
-				ArrayList<Integer> thresholds = (ArrayList<Integer>) difficultyConfig.getIntList("settings.dangerous-depths.thresholds", null);
-				ArrayList<Integer> levelincrease = (ArrayList<Integer>) difficultyConfig.getIntList("settings.dangerous-depths.level-increase", null);
+				ArrayList<Integer> thresholds = (ArrayList<Integer>) difficultyConfig.getIntegerList("settings.dangerous-depths.thresholds");
+				ArrayList<Integer> levelincrease = (ArrayList<Integer>) difficultyConfig.getIntegerList("settings.dangerous-depths.level-increase");
 				if (thresholds.size() == levelincrease.size()) {
 					for (int i = 0;i < thresholds.size();i++) {
 						SpawnEventListener.depthTiers.add(new int[] {thresholds.get(i),levelincrease.get(i)});
 					}
 				} else {
-					SRPG.output("Warning: Invalid depth settings in difficulty config");
+					sRPG.output("Warning: Invalid depth settings in difficulty config");
 				}
 				
 				// tool damage
-				CombatInstance.damageTableTools = new HashMap<String, Integer>();
-				node = difficultyConfig.getNode("stats.tools");
+				CombatInstance.damageTableTools = new HashMap<String, Integer>();                                
+                                ConfigurationSection statsTools = difficultyConfig.getConfigurationSection("stats.tools");
+                                
 				try {
-					for (String toolgroup : node.getKeys()) {
-						for (String tool : node.getKeys(toolgroup)) {
+					for (String toolgroup : statsTools.getKeys(true)) {
+                                            
+                                                ConfigurationSection toolgroupSection = difficultyConfig.getConfigurationSection(toolgroup);
+                                            
+						for (String tool : toolgroupSection.getKeys(true)) {
 							tool = toolgroup+"."+tool;
 							if (!node.getBoolean(tool+".override", false)) {
 								int basedamage = node.getInt(tool+".damage", 1);
@@ -261,7 +274,7 @@ public class Settings {
 						}
 					}
 				} catch (NullPointerException ex) {
-					SRPG.output("Error in difficulty configuration, check tool damage section");
+					sRPG.output("Error in difficulty configuration, check tool damage section");
 				}
 			}
 			
@@ -282,41 +295,54 @@ public class Settings {
 				StructureJob.tier_exponent = jobsettings.getDouble("settings.xp.tier-exponent", 1);
 				// load job prefixes
 				StructureJob.ranks = new HashMap<Integer, String>();
-				if (jobsettings.getKeys("job-prefixes") != null) {
-					for (String prefix : jobsettings.getKeys("job-prefixes")) {
+                                
+                                ConfigurationSection jobPrefixes = jobsettings.getConfigurationSection("job-prefixes");
+                                ConfigurationSection section;
+                                
+				if (jobPrefixes != null) {
+					for (String prefix : jobPrefixes.getKeys(true)) {
 						StructureJob.ranks.put(Integer.parseInt(prefix.substring(prefix.indexOf(" ")+1)), jobsettings.getString("job-prefixes."+prefix));
 					}
 				}
 				// load skill definitions
 				passives = new HashMap<String, StructurePassive>();
 				PASSIVE_ALIASES.put(null,new HashMap<String, String>());
-				for (String signature : passiveDefinitions.getKeys()) {
-					passives.put(signature, new StructurePassive(signature,passiveDefinitions.getNode(signature)));
+				for (String signature : passiveDefinitions.getKeys(true)) {
+                                        section =  passiveDefinitions.getConfigurationSection(signature);
+					passives.put(signature, new StructurePassive(signature, section));
 					PASSIVE_ALIASES.get(null).put(passives.get(signature).name.toLowerCase(), signature);
 				}
-				SRPG.output("loaded "+(new Integer(passives.size())).toString()+" "+MiscBukkit.parseSingularPlural(localization.get(defaultLocale).getString("terminology.passive"),passives.size()));
+				sRPG.output("loaded "+(new Integer(passives.size())).toString()+" "+MiscBukkit.parseSingularPlural(localization.get(defaultLocale).getString("terminology.passive"),passives.size()));
 				
 				// load ability definitions
 				actives = new HashMap<String, StructureActive>();
 				ACTIVE_ALIASES.put(null,new HashMap<String, String>());
-				for (String signature : activeDefinitions.getKeys()) {
-					actives.put(signature, new StructureActive(signature,activeDefinitions.getNode(signature)));
+				for (String signature : activeDefinitions.getKeys(true)) {
+                                        section = activeDefinitions.getConfigurationSection(signature);
+					actives.put(signature, new StructureActive(signature, section));
 					ACTIVE_ALIASES.get(null).put(actives.get(signature).name.toLowerCase(), signature);
 				}
-				SRPG.output("loaded "+(new Integer(actives.size())).toString()+" "+MiscBukkit.parseSingularPlural(localization.get(defaultLocale).getString("terminology.active"),actives.size()));
+				sRPG.output("loaded "+(new Integer(actives.size())).toString()+" "+MiscBukkit.parseSingularPlural(localization.get(defaultLocale).getString("terminology.active"),actives.size()));
 				
 				// load job definitions
 				jobs = new HashMap<String, StructureJob>();
 				JOB_ALIASES.put(null,new HashMap<String, String>());
-				for (String signature : jobDefinitions.getKeys()) {
-					if (jobsettings.getKeys("tree").contains(signature) && jobDefinitions.getBoolean(signature+".enabled", true)) {
-						jobs.put(signature, new StructureJob(signature,jobDefinitions.getNode(signature)));
+				for (String signature : jobDefinitions.getKeys(true)) {
+                                        ConfigurationSection tree = jobsettings.getConfigurationSection("tree");
+                                        
+					if (tree.contains(signature) && jobDefinitions.getBoolean(signature+".enabled", true)) {
+                                                section = jobDefinitions.getConfigurationSection(signature);
+						jobs.put(signature, new StructureJob(signature, section));
 						JOB_ALIASES.get(null).put(jobs.get(signature).name.toLowerCase(), signature);
 						
 						// load job prerequisites from jobtree
 						jobs.get(signature).prerequisites = new HashMap<StructureJob, Integer>();
-						if (jobsettings.getKeys("tree."+signature+".prerequisites")!= null) {
-							for (String prereq : jobsettings.getKeys("tree."+signature+".prerequisites")) {
+                                                
+                                                ConfigurationSection treePrerequisites = jobsettings.getConfigurationSection("tree."+signature+".prerequisites");
+                                                
+                                                
+						if (treePrerequisites != null) {
+							for (String prereq : treePrerequisites.getKeys(true)) {
 								jobs.get(signature).prerequisites.put(jobs.get(prereq), jobsettings.getInt("tree."+signature+".prerequisites."+prereq, 1));
 							}
 						} 
@@ -347,20 +373,21 @@ public class Settings {
 				
 				// load mobs
 				mobs = new HashMap<String, StructureJob>();
-				for (String creature : mobDefinitions.getKeys()) {
-					mobs.put(creature, new StructureJob(creature,mobDefinitions.getNode(creature)));
+				for (String creature : mobDefinitions.getKeys(true)) {
+                                        section = mobDefinitions.getConfigurationSection(creature);
+					mobs.put(creature, new StructureJob(creature, section));
 				}
 				
 				// status report
-				SRPG.output("loaded "+(new Integer(jobs.size())).toString()+" "+MiscBukkit.parseSingularPlural(localization.get(defaultLocale).getString("terminology.job"),jobs.size()));
+				sRPG.output("loaded "+(new Integer(jobs.size())).toString()+" "+MiscBukkit.parseSingularPlural(localization.get(defaultLocale).getString("terminology.job"),jobs.size()));
 				if (deactivate.size() > 0) {
-					SRPG.output((new Integer(deactivate.size())).toString()+" "+MiscBukkit.parseSingularPlural(localization.get(defaultLocale).getString("terminology.job"),deactivate.size())+" could not be loaded due to missing prerequisites");
+					sRPG.output((new Integer(deactivate.size())).toString()+" "+MiscBukkit.parseSingularPlural(localization.get(defaultLocale).getString("terminology.job"),deactivate.size())+" could not be loaded due to missing prerequisites");
 				}
 				if (jobs.isEmpty()) {
-					SRPG.output(MiscBukkit.parseSingularPlural(localization.get(defaultLocale).getString("terminology.job"), 1)+" tree is empty!");
+					sRPG.output(MiscBukkit.parseSingularPlural(localization.get(defaultLocale).getString("terminology.job"), 1)+" tree is empty!");
 					disable = true;
 				} else if (initialJobs.isEmpty()) {
-					SRPG.output("No "+MiscBukkit.parseSingularPlural(localization.get(defaultLocale).getString("terminology.job"), 1)+" without prerequisites available in the job tree!");
+					sRPG.output("No "+MiscBukkit.parseSingularPlural(localization.get(defaultLocale).getString("terminology.job"), 1)+" without prerequisites available in the job tree!");
 					disable = true;
 				}
 			}
@@ -370,13 +397,18 @@ public class Settings {
 			BlockEventListener.xpValuesMin.clear();
 			BlockEventListener.xpValuesRange.clear();
 			BlockEventListener.xpChances.clear();
-			for (Map.Entry<String, ConfigurationNode> group : Settings.advanced.getNodes("settings.blocks.groups").entrySet()) {
-				String name = group.getKey();
-				node = group.getValue();
+                        
+                        ConfigurationSection settingsBlocksGroups = Settings.advanced.getConfigurationSection("settings.blocks.groups");
+                        
+                        for (String group : settingsBlocksGroups.getKeys(true)) {
+                                
+				String name = group; 
+				node = Settings.advanced.getConfigurationSection("settings.blocks.groups." + name);
+                                
 				if (name.equalsIgnoreCase("default")) {
 					name = null;
 				} 
-				for (Material material : MiscBukkit.parseMaterialList(node.getStringList("materials",new ArrayList<String>()))) {
+				for (Material material : MiscBukkit.parseMaterialList(node.getStringList("materials"))) {
 					BlockEventListener.materialToXpGroup.put(material,name);
 				}
 				String valueString = node.getString("xp");
@@ -401,10 +433,10 @@ public class Settings {
 		} 
 		// disable plugin if anything went wrong while loading configuration
 		if (disable) {
-			SRPG.output("disabling plugin");
-			SRPG.pm.disablePlugin(SRPG.plugin);
+			sRPG.output("disabling plugin");
+			sRPG.pm.disablePlugin(sRPG.plugin);
 		} else {
-			SRPG.output("Successfully loaded config");
+			sRPG.output("Successfully loaded config");
 		}
 	}
 }
