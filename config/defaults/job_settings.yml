@@ -1,0 +1,51 @@
+settings:
+  xp:
+    # xp for next level are equal to 
+    # (base * level-coefficient * ((current level) ** level-exponent) * tier-coefficient * ((the jobs tier) ** tier-exponent) + (current level) * offset * (the jobs tier))
+    
+    base: 1000
+    offset: 0
+    level-coefficient: 1.2 
+    level-exponent: 1
+    tier-coefficient: 1 
+    tier-exponent: 1
+  inheritance:
+    mastered: 0.4
+    parent: 0.6
+    both: 0.8
+  
+  # singular and plural endings specified in brackets '()' separated by a pipe '|'
+  defaults: # may be modified by specific jobs under the node 'defaults'
+    damage-unarmed: 1
+    damage-unknown-item: 1
+    maximum-level: 10
+    crit-chance: 0.02
+    crit-multiplier: 1.5
+    miss-chance: 0.05
+    miss-damage-factor: 1.0
+
+job-prefixes:
+  Level 1: Novice
+  Level 4: Trained
+  Level 7: Expert
+  Level 10: "[gold]Master"
+
+# New users get assigned one of the jobs with empty 'prerequisites' nodes at random (by default only the 'adventurer' job has an empty 'prerequisites' node
+tree:
+  adventurer:
+    prerequisites:
+  archer:
+    prerequisites: 
+      adventurer: 1
+  sniper:
+    prerequisites:
+      archer: 3
+  rogue:
+    prerequisites: 
+      adventurer: 1
+  knight:
+    prerequisites: 
+      adventurer: 1
+  worker:
+    prerequisites: 
+      adventurer: 1

@@ -1,0 +1,75 @@
+settings:
+  # dangerous-depths can be enabled/disabled in the basic configuration
+  dangerous-depths:
+    thresholds: [40,15]
+    level-increase: [1,2]
+  combat:
+    armor-strength: # the number is the maximum damage reduction you can get with a full set of that armor type
+      leather: 0.3
+      chain: 0.6
+      iron: 0.8
+      diamond: 0.7
+      gold: 0.4
+
+# NOTE: damage and health values not in hearts (1 heart = 2 damage/health)
+stats:
+  tools:
+    swords:
+      wood:
+        damage: 3
+      stone:
+        damage: 4
+      iron:
+        damage: 6
+      gold:
+        damage: 3
+      diamond:
+        damage: 8
+    pickaxes:
+      wood:
+        damage: 2
+      stone:
+        damage: 3
+      iron:
+        damage: 4
+      gold:
+        damage: 2
+      diamond:
+        damage: 5
+    axes:
+      wood:
+        damage: 2
+      stone:
+        damage: 3
+      iron:
+        damage: 5
+      gold:
+        damage: 2
+      diamond:
+        damage: 7
+    shovels:
+      wood:
+        damage: 2
+      stone:
+        damage: 3
+      iron:
+        damage: 4
+      gold:
+        damage: 2
+      diamond:
+        damage: 5
+    hoes: 
+      wood:
+        damage: 1
+      stone:
+        damage: 1
+      iron:
+        damage: 1
+      gold:
+        damage: 1
+      diamond:
+        damage: 1
+    ranged:
+      bow:
+        damage: 1
+        max-damage: 6

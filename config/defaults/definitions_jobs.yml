@@ -1,0 +1,165 @@
+# New players get randomly assigned one of the jobs that have an empty 'prerequisites' node
+adventurer:
+  enabled: true
+  name: Adventurer
+  description: 
+  details: 
+  tier: 0
+  defaults:
+    maximum-level: 1
+  traits:
+  passives:
+  actives:
+
+worker:
+  enabled: true
+  name: Worker
+  description: 
+  details:
+  tier: 1
+  defaults:
+  traits:
+    - tool-proficiency
+  passives:
+    level 1:
+      - lumberjack
+    level 2:
+      - stonecutter
+    level 4:
+      - lumberjack!2
+    level 5:
+      - coal-mining
+    level 6:
+      - stonecutter!2
+    level 8:
+      - lumberjack!3
+    level 9:
+      - coal-mining!2
+    level 10:
+      - stonecutter!3
+  actives:
+    level 3:
+      - search-for-resources
+    level 7:
+      - search-for-valuables
+
+knight:
+  enabled: true
+  name: Knight
+  description:
+  details:
+  tier: 1
+  defaults:
+  traits:
+    - footwork
+    - parry
+  passives:
+    level 2:
+      - defensive-sword-training
+    level 3:
+      - offensive-sword-training
+    level 5:
+      - improved-parry
+    level 6:
+      - defensive-sword-training!2
+    level 7:
+      - riposte
+    level 8:
+      - offensive-sword-training!2
+    level 9:
+      - improved-parry!2
+  actives:
+    level 4:
+      - aimed-strike
+    level 8:
+      - piercing-strike
+
+rogue:
+  enabled: true
+  name: Rogue
+  description: 
+  details: 
+  tier: 1
+  defaults: 
+  traits: 
+    - from-behind
+  passives: 
+    level 3:
+      - target-vitals
+    level 6:
+      - target-vitals!2
+    level 9:
+      - target-vitals!3
+  actives: 
+    level 2:
+      - backstab
+    level 5:
+      - kick-up-dirt
+    level 7:
+      - feint
+
+ninja:
+  enabled: false
+  name: Ninja
+  description: 
+  details: 
+  tier: 2
+  defaults:
+  traits:
+  passives:
+  actives:
+
+archer:
+  enabled: true
+  name: Archer
+  description: 
+  details: 
+  tier: 1
+  defaults:
+  traits:
+    - ranged-focus
+  passives:
+    level 2: 
+      - bow-training
+    level 4: 
+      - bow-training!2
+    level 5: 
+      - ballistics
+    level 10: 
+      - bow-training!3
+      - ballistics!2
+  actives:
+    level 1:
+      - concentrate
+    level 3:
+      - improvised-arrows
+    level 7:
+      - reinforced-string
+    level 8:
+      - concentrate!2
+      
+sniper:
+  enabled: true
+  name: Sniper
+  description: 
+  details: 
+  tier: 2
+  defaults:
+    crit-chance: 0.05
+  traits:
+    - ranged-focus!2
+    - snipers-eye
+  passives:
+    level 2:
+      - improved-accuracy
+    level 6:
+      - improved-accuracy!2
+    level 7:
+      - read-the-wind
+    level 9:
+      - improved-accuracy!3
+    level 10:
+      - lucky-shots
+  actives: 
+    level 3:
+      - concentrate

@@ -1,0 +1,270 @@
+# Mobs level up via the depth settings, each depth tier increases level by one
+# rest of the settings is exactly the same as for player jobs, with the exception that currently mobs don't use active skills, and their tier is irrelevant.
+# monsters not in this config will use regular stats and nothing else. the default damage is set as the default "damage-unarmed"
+
+default: # do not remove, fallback if no proper job is available
+  enabled: true
+  name: Default Living Entity
+  description: 
+  details: 
+  tier: 0
+  defaults:
+    health: 20
+    xp: 0
+  traits: 
+  passives:
+
+pig:
+  enabled: true
+  name: Pig
+  description: 
+  details: 
+  tier: 0
+  defaults:
+    health: 10
+    xp: 1
+  traits:
+  passives:
+
+sheep:
+  enabled: true
+  name: Sheep
+  description: 
+  details: 
+  tier: 0
+  defaults:
+    health: 10
+    xp: 1
+  traits:
+  passives:
+
+chicken:
+  enabled: true
+  name: Chicken
+  description: 
+  details: 
+  tier: 0
+  defaults:
+    health: 4
+    xp: 1
+  traits:
+  passives:
+
+cow:
+  enabled: true
+  name: Cow
+  description: 
+  details: 
+  tier: 0
+  defaults:
+    health: 10
+    xp: 1
+  traits:
+  passives:
+
+squid:
+  enabled: true
+  name: Squid
+  description: 
+  details: 
+  tier: 0
+  defaults:
+    health: 10
+    xp: 1
+  traits:
+  passives:
+
+zombie:
+  enabled: true
+  name: Zombie
+  description: 
+  details: 
+  tier: 0
+  defaults:
+    health: 20
+    damage-unarmed: 5
+    xp: 10
+  traits:
+  passives:
+
+spider:
+  enabled: true
+  name: Spider
+  description: 
+  details: 
+  tier: 0
+  defaults:
+    health: 20
+    damage-unarmed: 2
+    xp: 10
+  traits:
+  passives:
+
+skeleton:
+  enabled: true
+  name: Skeleton
+  description: 
+  details: 
+  tier: 0
+  defaults:
+    health: 20
+    damage-unarmed: 4
+    xp: 10
+  traits:
+  passives:
+
+creeper:
+  enabled: true
+  name: Creeper
+  description: 
+  details: 
+  tier: 0
+  defaults:
+    health: 20
+    damage-unarmed: 16
+    xp: 20
+  traits:
+  passives:
+
+pigzombie:
+  enabled: true
+  name: Pigzombie
+  description: 
+  details: 
+  tier: 0
+  defaults:
+    health: 20
+    damage-unarmed: 6
+    xp: 20
+  traits:
+  passives:
+
+ghast:
+  enabled: true
+  name: Ghast
+  description: 
+  details: 
+  tier: 0
+  defaults:
+    health: 10
+    damage-unarmed: 7
+    xp: 15
+  traits:
+  passives:
+
+giant:
+  enabled: true
+  name: Giant
+  description: 
+  details: 
+  tier: 0
+  defaults:
+    health: 50
+    damage-unarmed: 17
+    xp: 100
+  traits:
+  passives:
+
+enderman:
+  enabled: true
+  name: Enderman
+  description: 
+  details: 
+  tier: 0
+  defaults:
+    health: 20
+    damage-unarmed: 5
+    xp: 10
+  traits:
+  passives:
+
+silverfish:
+  enabled: true
+  name: Silverfish
+  description: 
+  details: 
+  tier: 0
+  defaults:
+    health: 20
+    damage-unarmed: 1
+    xp: 10
+  traits:
+  passives:
+
+slime-huge:
+  enabled: true
+  name: Huge Slime
+  description: 
+  details: 
+  tier: 0
+  defaults:
+    health: 32
+    damage-unarmed: 4
+    xp: 24
+  traits:
+  passives:
+
+slime-big:
+  enabled: true
+  name: Big Slime
+  description: 
+  details: 
+  tier: 0
+  defaults:
+    health: 16
+    damage-unarmed: 4
+    xp: 8
+  traits:
+  passives:
+
+slime-normal:
+  enabled: true
+  name: Slime
+  description: 
+  details: 
+  tier: 0
+  defaults:
+    health: 4
+    damage-unarmed: 2
+    xp: 4
+  traits:
+  passives:
+
+slime-small:
+  enabled: true
+  name: Small Slime
+  description: 
+  details: 
+  tier: 0
+  defaults:
+    health: 1
+    damage-unarmed: 0
+    xp: 2
+  traits:
+  passives:
+
+wolf-wild:
+  enabled: true
+  name: Wild Wolf
+  description: 
+  details: 
+  tier: 0
+  defaults:
+    health: 8
+    damage-unarmed: 2
+    xp: 10
+  traits:
+  passives:
+
+wolf-tamed:
+  enabled: true
+  name: Tamed Wolf
+  description: 
+  details: 
+  tier: 0
+  defaults:
+    health: 20
+    damage-unarmed: 4
+    xp: 10
+  traits:
+  passives:

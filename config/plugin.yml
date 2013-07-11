@@ -1,0 +1,40 @@
+name: sRPG
+main: com.behindthemirrors.minecraft.sRPG.sRPG
+version: 1.0alpha1
+
+commands:
+  srpg:
+    description: Get status and help for the sRPG plugin
+    usage: |
+           /<command> jobs
+           /<command> change to [jobname]
+           /<command> info
+           /<command> stats
+           /<command> locale [locale]
+permissions:
+  srpg.basics:
+    default: true
+    description: Gives access to all normal features
+    children:
+      srpg.xp: true
+      srpg.charges: true
+      srpg.actives: true
+      srpg.passives: true
+      srpg.jobs: true
+  srpg.xp:
+    description: access to gaining xp for jobs
+  srpg.charges:
+    description: access to gaining charges for active abilities
+  srpg.actives:
+    description: access to all active abilities (you may use srpg.active.foo for every 'foo' defined in actives.yml)
+  srpg.passives:
+    description: access to all passive skills (you may use srpg.jobs.foo for every 'foo' defined in passives.yml)
+  srpg.jobs:
+    description: access to all enabled jobs (you may use srpg.jobs.foo for every 'foo' defined in jobs.yml)
+  srpg.admin:
+    default: op
+    description: Gives access to admin commands
+    children:
+      srpg.reload: true
+  srpg.reload:
+    description: reload config from ingame

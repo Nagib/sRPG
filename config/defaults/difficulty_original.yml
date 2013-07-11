@@ -1,0 +1,78 @@
+settings:
+  # dangerous-depths can be enabled/disabled in the basic configuration
+  dangerous-depths:
+    thresholds: []
+    level-increase: []
+  combat:
+    crit-chance: 0.05
+    crit-multiplier: 1.5
+    miss-chance: 0.0
+    miss-multiplier: 0.0
+    armor-strength: # not used yet
+      leather: 1.0
+      iron: 1.2
+      gold: 1.2
+      diamond: 1.5
+
+# NOTE: damage and health values not in hearts (1 heart = 2 damage/health)
+stats:
+  tools:
+    swords:
+      wood:
+        damage: 5
+      stone:
+        damage: 7
+      iron:
+        damage: 9
+      gold:
+        damage: 5
+      diamond:
+        damage: 11
+    pickaxes:
+      wood:
+        damage: 3
+      stone:
+        damage: 4
+      iron:
+        damage: 5
+      gold:
+        damage: 3
+      diamond:
+        damage: 6
+    axes:
+      wood:
+        damage: 4
+      stone:
+        damage: 5
+      iron:
+        damage: 6
+      gold:
+        damage: 4
+      diamond:
+        damage: 7
+    shovels:
+      wood:
+        damage: 2
+      stone:
+        damage: 3
+      iron:
+        damage: 4
+      gold:
+        damage: 2
+      diamond:
+        damage: 5
+    hoes: 
+      wood:
+        damage: 2
+      stone:
+        damage: 2
+      iron:
+        damage: 2
+      gold:
+        damage: 2
+      diamond:
+        damage: 2
+    ranged:
+      bow:
+        damage: 2
+        max-damage: 10
