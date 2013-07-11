@@ -55,12 +55,15 @@ public final class sRPG extends JavaPlugin {
 	static final Logger log = Logger.getLogger("Minecraft");
 	public static final Settings settings = new Settings();
 	
+        @Override
 	public void onEnable() {
-		// set all instance related references
+                this.saveDefaultConfig();
+                
+                // set all instance related references
 		plugin = this;
 		pm = getServer().getPluginManager();
 		Settings.dataFolder = getDataFolder();
-		
+                
 		for (String command : new String[] {"srpg"}) {
 			getCommand(command).setExecutor(commandListener);
 		}
@@ -71,7 +74,7 @@ public final class sRPG extends JavaPlugin {
 		
 		boolean disable = false;
 		settings.load();
-		if (!database.connect()) {
+		if (database == null || !database.connect()) {
 			output("disabling plugin");
 			disable = true;
 		}
@@ -92,6 +95,7 @@ public final class sRPG extends JavaPlugin {
 			Watcher.addWorlds(plugin.getServer().getWorlds());
 		}
 	}
+        
 	public void onDisable() {
 		pdfFile = this.getDescription();
 		for (World world : plugin.getServer().getWorlds()) {

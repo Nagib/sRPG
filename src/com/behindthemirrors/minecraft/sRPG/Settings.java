@@ -17,7 +17,6 @@ import com.behindthemirrors.minecraft.sRPG.dataStructures.Watcher;
 import com.behindthemirrors.minecraft.sRPG.listeners.BlockEventListener;
 import com.behindthemirrors.minecraft.sRPG.listeners.SpawnEventListener;
 
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -87,7 +86,7 @@ public class Settings {
 	static HashMap<String, HashMap<String, String>> nameReplacements;
 
 	Configuration openConfig(File folder, String name, String description, String defaultFileName) {
-		File file = MiscGeneric.createDefaultFile(new File(folder, name+".yml"),description,defaultFileName+".yml");
+		File file = MiscGeneric.createDefaultFile(new File(folder, name+".yml"),description, defaultFileName+".yml");
                 
 		if (file.exists()) {
 			Configuration configuration = YamlConfiguration.loadConfiguration(file);
